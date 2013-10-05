@@ -1,3 +1,4 @@
+
 ///////////////////////////////////////////////////////////////////////
 //
 // Assignment 1 consists in the following:
@@ -99,7 +100,7 @@ void setupGLUT(int argc, char* argv[])
 {
 	glutInit(&argc, argv);
 	
-	glutInitContextVersion(3, 3);
+	glutInitContextVersion(4, 3);
 	glutInitContextFlags(GLUT_FORWARD_COMPATIBLE);
 	glutInitContextProfile(GLUT_CORE_PROFILE);
 
