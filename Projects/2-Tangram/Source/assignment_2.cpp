@@ -39,6 +39,8 @@
 #include "GL/freeglut.h"
 #include "MatrixManip.h"
 #include "TangramManipulator.h"
+#include "ShaderManipulator.h"
+
 #define CAPTION "Hello New World"
 
 int presentationMode = 0; // 0 - normal ; 1 - arranged, 2- silhouette
@@ -47,12 +49,9 @@ int WindowHandle = 0;
 unsigned int FrameCount = 0;
 
 TangramManipulator* tangramManipulator = new TangramManipulator;
+ShaderManipulator* shaderManipulator = new ShaderManipulator;
 
 
-/*
-#define VERTICES 0
-#define COLORS 1
-*/
 GLuint VaoId, VboId[2];
 GLuint VertexShaderId, FragmentShaderId, ProgramId;
 GLint UniformId, SilhouetteId;
@@ -82,51 +81,13 @@ void checkOpenGLError(std::string error)
 
 /////////////////////////////////////////////////////////////////////// SHADERs
 
-const GLchar* VertexShader =
-{
-	"#version 330 core\n"
-
-	"in vec4 in_Position;\n"	// "layout(location=0) in vec4 in_Position;"
-	"in vec4 in_Color;\n"		// "layout(location=1) in vec4 in_Color;"
-	"out vec4 ex_Color;\n"
-
-	"uniform mat4 Matrix;\n"
-
-	"void main(void)\n"
-	"{\n"
-	"	gl_Position = Matrix * in_Position;\n"
-	"	ex_Color = in_Color;\n"
-	"}\n"
-};
-
-const GLchar* FragmentShader =
-{
-  "#version 330 core\n"
-
-  "in vec4 ex_Color;\n"
-  "out vec4 out_Color;\n"
-  "uniform int Silhouette;\n"
-  "void main(void)\n"
-  "{\n"
-    "if(Silhouette == 1 ){\n"
-     "	out_Color = ex_Color;\n"
-      "} else{\n"
-     "	out_Color = vec4(1.0f, 1.0f, 1.0f, 1.0f);\n"
-    "}\n"
-  "}\n"
-};
-
-
 
 void createShaderProgram()
 {
-	VertexShaderId = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(VertexShaderId, 1, &VertexShader, 0);
-	glCompileShader(VertexShaderId);
+  VertexShaderId = shaderManipulator->LoadVertexShader("../2-Tangram/Source/Shaders/VertexShader.txt");
 
-	FragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(FragmentShaderId, 1, &FragmentShader, 0);
-	glCompileShader(FragmentShaderId);
+  FragmentShaderId = shaderManipulator->LoadFragmentShader("../2-Tangram/Source/Shaders/FragmentShader.txt");
+
 
 	ProgramId = glCreateProgram();
 	glAttachShader(ProgramId, VertexShaderId);
@@ -135,8 +96,12 @@ void createShaderProgram()
 	glBindAttribLocation(ProgramId, VERTICES, "in_Position");
 	glBindAttribLocation(ProgramId, COLORS, "in_Color");
 	glLinkProgram(ProgramId);
+
+  glUseProgram(ProgramId);
+
 	UniformId = glGetUniformLocation(ProgramId, "Matrix");
   SilhouetteId = glGetUniformLocation(ProgramId, "Silhouette");
+
 
 
 	checkOpenGLError("ERROR: Could not create shaders.");
@@ -145,11 +110,10 @@ void createShaderProgram()
 void destroyShaderProgram()
 {
 	glUseProgram(0);
-	glDetachShader(ProgramId, VertexShaderId);
-	glDetachShader(ProgramId, FragmentShaderId);
 
-	glDeleteShader(FragmentShaderId);
-	glDeleteShader(VertexShaderId);
+  shaderManipulator->DestroyShader(ProgramId, VertexShaderId);
+  shaderManipulator->DestroyShader(ProgramId, FragmentShaderId);
+
 	glDeleteProgram(ProgramId);
 
 	checkOpenGLError("ERROR: Could not destroy shaders.");
@@ -192,25 +156,27 @@ void destroyBufferObjects()
 
 typedef GLfloat Matrix[16];
 
-
-
 MatrixManip* matrixManipulator = new MatrixManip();
+
 GLfloat* piecesMatrices[8];
 
-GLfloat* I = matrixManipulator->getIdentity(); 
 bool useSilhouette = false;
+
 void drawScene()
 {
+  glBindVertexArray(VaoId);
+  glUseProgram(ProgramId);
+  glUniform1i(SilhouetteId, 0);
+
+  glUniformMatrix4fv(UniformId, 1, GL_TRUE, piecesMatrices[7]);
+  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, (GLvoid*) 27);
+
 
   if (useSilhouette){
     glUniform1i(SilhouetteId, 1);
   }
-  else{
-    glUniform1i(SilhouetteId, 0);
-  }
 
-	glBindVertexArray(VaoId);
-	glUseProgram(ProgramId);
+
 
   for (int i = 0; i < 5; i++){
     glUniformMatrix4fv(UniformId, 1, GL_TRUE, piecesMatrices[i]);
@@ -224,10 +190,7 @@ void drawScene()
 
   }
 
-  glUniform1i(SilhouetteId, 0);
 
-  glUniformMatrix4fv(UniformId, 1, GL_TRUE, piecesMatrices[7]);
-  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, (GLvoid*) 27);
 
 	glUseProgram(0);
 	glBindVertexArray(0);

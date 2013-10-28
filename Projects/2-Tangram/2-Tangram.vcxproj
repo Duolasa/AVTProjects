@@ -72,10 +72,12 @@
   <ItemGroup>
     <ClCompile Include="Source\assignment_2.cpp" />
     <ClCompile Include="Source\MatrixManip.cpp" />
+    <ClCompile Include="Source\ShaderManipulator.cpp" />
     <ClCompile Include="Source\TangramManipulator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\MatrixManip.h" />
+    <ClInclude Include="Source\ShaderManipulator.h" />
     <ClInclude Include="Source\TangramManipulator.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

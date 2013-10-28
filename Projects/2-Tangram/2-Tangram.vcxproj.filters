@@ -24,12 +24,18 @@
     <ClCompile Include="Source\TangramManipulator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\ShaderManipulator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\MatrixManip.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\TangramManipulator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ShaderManipulator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
