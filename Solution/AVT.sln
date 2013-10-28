@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.20623.1 VSUPREVIEW
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "1-GettingStarted", "..\Projects\1-GettingStarted\1-GettingStarted.vcxproj", "{C41F02B5-9834-472C-B474-9124F65E4CAF}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "2-Tangram", "..\Projects\2-Tangram\2-Tangram.vcxproj", "{67AF1445-7D01-4777-9181-10987C52DEB1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -15,6 +17,10 @@ Global
 		{C41F02B5-9834-472C-B474-9124F65E4CAF}.Debug|Win32.Build.0 = Debug|Win32
 		{C41F02B5-9834-472C-B474-9124F65E4CAF}.Release|Win32.ActiveCfg = Release|Win32
 		{C41F02B5-9834-472C-B474-9124F65E4CAF}.Release|Win32.Build.0 = Release|Win32
+		{67AF1445-7D01-4777-9181-10987C52DEB1}.Debug|Win32.ActiveCfg = Debug|Win32
+		{67AF1445-7D01-4777-9181-10987C52DEB1}.Debug|Win32.Build.0 = Debug|Win32
+		{67AF1445-7D01-4777-9181-10987C52DEB1}.Release|Win32.ActiveCfg = Release|Win32
+		{67AF1445-7D01-4777-9181-10987C52DEB1}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
