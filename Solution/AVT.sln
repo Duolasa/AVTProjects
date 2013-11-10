@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "1-GettingStarted", "..\Proj
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "2-Tangram", "..\Projects\2-Tangram\2-Tangram.vcxproj", "{67AF1445-7D01-4777-9181-10987C52DEB1}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "3- Tangram 3D", "..\Projects\3- Tangram 3D\3- Tangram 3D.vcxproj", "{E94F1EED-C1CD-4185-9FE8-426FFB29495D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -21,6 +23,10 @@ Global
 		{67AF1445-7D01-4777-9181-10987C52DEB1}.Debug|Win32.Build.0 = Debug|Win32
 		{67AF1445-7D01-4777-9181-10987C52DEB1}.Release|Win32.ActiveCfg = Release|Win32
 		{67AF1445-7D01-4777-9181-10987C52DEB1}.Release|Win32.Build.0 = Release|Win32
+		{E94F1EED-C1CD-4185-9FE8-426FFB29495D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E94F1EED-C1CD-4185-9FE8-426FFB29495D}.Debug|Win32.Build.0 = Debug|Win32
+		{E94F1EED-C1CD-4185-9FE8-426FFB29495D}.Release|Win32.ActiveCfg = Release|Win32
+		{E94F1EED-C1CD-4185-9FE8-426FFB29495D}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -89,7 +89,7 @@ void TangramManipulator::CreatePieces(){
 
   for (int i = 0; i < 7; i++)
   {
-    pieces[i].transformationMatrix = matrixGenerator.getIdentity();
+    pieces[i].transformationMatrix = matrixGenerator.GetIdentity();
   }
 
 }
@@ -97,6 +97,7 @@ void TangramManipulator::CreatePieces(){
 void TangramManipulator::DrawPieces(GLint UniformId){
 
   for (int i = 0; i < 7; i++){
+
     pieces[i].draw(UniformId);
   }
 
@@ -108,7 +109,7 @@ void TangramManipulator::FillWithIdentity(){
   for (int i = 0; i < 7; i++)
   {
     free(pieces[i].transformationMatrix);
-    pieces[i].transformationMatrix = matrixGenerator.getIdentity();
+    pieces[i].transformationMatrix = matrixGenerator.GetIdentity();
   }
 }
 
@@ -117,51 +118,51 @@ void TangramManipulator::FillWithIdentity(){
 void TangramManipulator::FillWithPresetPosition(){
   float z [] = { 0.0f, 0.0f, 1.0f };
 
-  GLfloat* rotation = matrixGenerator.getRotation(z, 90.0f);
-  GLfloat* translation = matrixGenerator.getTranslation(-0.527f, 0.0f, 0.0f);
-  pieces[0].transformationMatrix = matrixGenerator.multiply(translation, rotation);
+  GLfloat* rotation = matrixGenerator.GetRotation(z, 90.0f);
+  GLfloat* translation = matrixGenerator.GetTranslation(-0.527f, 0.0f, 0.0f);
+  pieces[0].transformationMatrix = matrixGenerator.Multiply(translation, rotation);
   free(rotation);
   free(translation);
 
 
-  rotation = matrixGenerator.getRotation(z, 180.0f);
-  translation = matrixGenerator.getTranslation(0.527f, 0.0f, 0.0f);
-  pieces[1].transformationMatrix = matrixGenerator.multiply(translation, rotation);
+  rotation = matrixGenerator.GetRotation(z, 180.0f);
+  translation = matrixGenerator.GetTranslation(0.527f, 0.0f, 0.0f);
+  pieces[1].transformationMatrix = matrixGenerator.Multiply(translation, rotation);
   free(rotation);
   free(translation);
 
 
-  rotation = matrixGenerator.getRotation(z, 90.0f);
-  translation = matrixGenerator.getTranslation(-0.29f, -0.2625f, 0.0f);
-  pieces[2].transformationMatrix = matrixGenerator.multiply(translation, rotation);
+  rotation = matrixGenerator.GetRotation(z, 90.0f);
+  translation = matrixGenerator.GetTranslation(-0.29f, -0.2625f, 0.0f);
+  pieces[2].transformationMatrix = matrixGenerator.Multiply(translation, rotation);
   free(rotation);
   free(translation);
 
 
-  rotation = matrixGenerator.getRotation(z, -45.0f);
-  translation = matrixGenerator.getTranslation(0.53f, -0.75f, 0.0f);
-  pieces[3].transformationMatrix = matrixGenerator.multiply(translation, rotation);
+  rotation = matrixGenerator.GetRotation(z, -45.0f);
+  translation = matrixGenerator.GetTranslation(0.53f, -0.75f, 0.0f);
+  pieces[3].transformationMatrix = matrixGenerator.Multiply(translation, rotation);
   free(rotation);
   free(translation);
 
 
-  rotation = matrixGenerator.getRotation(z, 90.0f);
-  translation = matrixGenerator.getTranslation(0.0f, -0.52f, 0.0f);
-  pieces[4].transformationMatrix = matrixGenerator.multiply(translation, rotation);
+  rotation = matrixGenerator.GetRotation(z, 90.0f);
+  translation = matrixGenerator.GetTranslation(0.0f, -0.52f, 0.0f);
+  pieces[4].transformationMatrix = matrixGenerator.Multiply(translation, rotation);
   free(rotation);
   free(translation);
 
 
-  rotation = matrixGenerator.getRotation(z, 00.0f);
-  translation = matrixGenerator.getTranslation(-0.54f, 0.0f, 0.0f);
-  pieces[5].transformationMatrix = matrixGenerator.multiply(translation, rotation);
+  rotation = matrixGenerator.GetRotation(z, 00.0f);
+  translation = matrixGenerator.GetTranslation(-0.54f, 0.0f, 0.0f);
+  pieces[5].transformationMatrix = matrixGenerator.Multiply(translation, rotation);
   free(rotation);
   free(translation);
 
 
-  rotation = matrixGenerator.getRotation(z, -90.0f);
-  translation = matrixGenerator.getTranslation(0.69f, -0.91f, 0.0f);
-  pieces[6].transformationMatrix = matrixGenerator.multiply(translation, rotation);
+  rotation = matrixGenerator.GetRotation(z, -90.0f);
+  translation = matrixGenerator.GetTranslation(0.69f, -0.91f, 0.0f);
+  pieces[6].transformationMatrix = matrixGenerator.Multiply(translation, rotation);
   free(rotation);
   free(translation);
 

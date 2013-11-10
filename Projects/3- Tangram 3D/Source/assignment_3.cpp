@@ -1,31 +1,43 @@
 ///////////////////////////////////////////////////////////////////////
 //
-// Assignment 2 consists in the following:
+// Assignment 3 consists in the following:
 //
-// - Rewrite the program using C++ classes for:
-//   - Matrix manipulation;
-//   - Shader manipulation;
-//   - Managing drawable entities.
-//
-// - Provide an UML diagram of your solution.
+// - Create the following changes to your scene, making it fully 3D:
+//   - Extrude your TANs into the 3rd dimension. The TANs should have
+//     slightly different "heights".
+//   - The new faces of each TAN should share the same hue as the 
+//     original top face color but have different levels of saturation 
+//     and brightness (use an external app if needed).
+//   - The shape is now built vertically (i.e. rather than horizontally
+//     as in assignment 2) but still on top of the surface.
+//   - When the TANs join to create your chosen shape, they should not 
+//     be perfectly aligned in the new dimension.
 //
 // - Add the following functionality:
-//   - Read shader code from external files;
-//   - Check shader compilation and linkage for error messages.
-// 
-// - Draw the following scene, minimizing the number of vertices on the GPU:
-//   - A set of 7 TANs (i.e. TANGRAM shapes) of different colors;
-//   - A flat surface on which the TANs will be placed (with an appropriate contrasting color).
+//   - Create a View Matrix from (eye, center, up) parameters.
+//   - Create an Orthographic Projection Matrix from (left-right, 
+//     bottom-top, near-far) parameters.
+//   - Create a Perspective Projection Matrix from (fovy, aspect,
+//     nearZ, farZ) parameters.
+//   - Implement rotations through quaternions.
 //
-// - Alternate between the following dispositions when the user presses the 't' key;
-//   - The 7 TANs in their original square configuration;
-//   - The 7 TANs put together to form a shape of your choice (6500 to choose from!);
-//   - The silhouette of the shape of your choice on the flat surface.
+// - Add the following dynamics to the application:
+//   - Create a spherical 3D camera controlled by the mouse allowing to 
+//     visualize the scene through all its angles.
+//   - Change perspective from orthographic to perspective and back as
+//     a response to pressing the key 'p'.
+//   - The scene starts with the 7 TANs in their original square 
+//     configuration, laying flat and horizontally on the surface.
+//   - Each time the 't' key is pressed, one of the TANs will move from 
+//     its resting place to its position in your chosen shape, now 
+//     presented vertically.
 //
-// Further suggestions to verify your understanding of the concepts explored:
-//
-// - Use linear interpolation to create a transition between the two TAN configurations.
-// - Parse geometrical information from external XML files.
+// Further suggestions:
+//   - Use mouse interaction to select which TAN will be next moved 
+//     into place or moved back to its resting position.
+//   - Create an edit mode in which the user can edit the shape in
+//     real-time (e.g. position, rotation, color).
+//   - Allow to load and save the TANGRAM shapes from external files.
 //
 // (c) 2013 by Carlos Martinho
 //
@@ -40,20 +52,35 @@
 #include "MatrixManip.h"
 #include "TangramManipulator.h"
 #include "ShaderManipulator.h"
+#include "Camera.h"
 
 #define CAPTION "Hello New World"
+#define radiansToDegrees 57.2957795131f
+#define degreesToRadians 0.01745329251f
+#define PI 3.14159265359f
 
 int presentationMode = 1; // 0 - normal ; 1 - arranged, 2- silhouette
+int perspectiveMode = 1; // 0- Orthographic ; 1 - Perspective
 int WinX = 640, WinY = 480;
 int WindowHandle = 0;
+bool RMBdown = false;
 unsigned int FrameCount = 0;
+float eye [] = { 5, 5, 5 };
+float center [] = { 0, 0, 0 };
+float up [] = { 0, 0, 1 };
+int mouseX, mouseY, elapsedTime;
+static TangramManipulator* tangramManipulator = new TangramManipulator;
+static ShaderManipulator* shaderManipulator = new ShaderManipulator;
+MatrixManip* matrixManipulator = new MatrixManip();
 
-TangramManipulator* tangramManipulator = new TangramManipulator;
-ShaderManipulator* shaderManipulator = new ShaderManipulator;
+static Camera* camera = new Camera(matrixManipulator->GetView(eye, center, up),
+                                     matrixManipulator->GetOrthoProjection(2,-2,-2,2,1,10),
+                                     matrixManipulator->GetPerspProjection(30, 640.0f / 480.0f, 1, 10));
 
+GLuint VertexShaderId, FragmentShaderId, ProgramId, SharedMatricesBuffer;
+GLint ModelMatrixId, SilhouetteId, SharedMatricesId;
+const GLuint UBO_BP = 0;
 
-GLuint VertexShaderId, FragmentShaderId, ProgramId;
-GLint UniformId, SilhouetteId;
 
 /////////////////////////////////////////////////////////////////////// ERRORS
 
@@ -83,9 +110,9 @@ void checkOpenGLError(std::string error)
 
 void createShaderProgram()
 {
-  VertexShaderId = shaderManipulator->LoadVertexShader("../2-Tangram/Source/Shaders/VertexShader.txt");
+  VertexShaderId = shaderManipulator->LoadVertexShader("../3- Tangram 3D/Source/Shaders/VertexShader.txt");
 
-  FragmentShaderId = shaderManipulator->LoadFragmentShader("../2-Tangram/Source/Shaders/FragmentShader.txt");
+  FragmentShaderId = shaderManipulator->LoadFragmentShader("../3- Tangram 3D/Source/Shaders/FragmentShader.txt");
 
 
 	ProgramId = glCreateProgram();
@@ -98,10 +125,11 @@ void createShaderProgram()
 
   glUseProgram(ProgramId);
 
-	UniformId = glGetUniformLocation(ProgramId, "Matrix");
+	ModelMatrixId = glGetUniformLocation(ProgramId, "ModelMatrix");
   SilhouetteId = glGetUniformLocation(ProgramId, "Silhouette");
 
-
+  SharedMatricesId = glGetUniformBlockIndex(ProgramId, "SharedMatrices");
+  glUniformBlockBinding(ProgramId, SharedMatricesId, UBO_BP);
 
 	checkOpenGLError("ERROR: Could not create shaders.");
 }
@@ -122,6 +150,7 @@ void destroyShaderProgram()
 
 void createBufferObjects()
 {
+  camera->CreateBuffers();
 
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -147,17 +176,12 @@ void destroyBufferObjects()
 
 typedef GLfloat Matrix[16];
 
-MatrixManip* matrixManipulator = new MatrixManip();
-
-GLfloat* piecesMatrices[8];
-
-bool useSilhouette = false;
-
 void drawScene()
 {
   glUseProgram(ProgramId);
 
-  tangramManipulator->DrawPieces(UniformId);
+
+  tangramManipulator->DrawPieces(ModelMatrixId);
   
 
 	glUseProgram(0);
@@ -177,6 +201,7 @@ void cleanup()
 
 void display()
 {
+//  elapsedTime = glutGet(GLUT_ELAPSED_TIME);
 	++FrameCount;
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	drawScene();
@@ -233,11 +258,97 @@ void processKeys(unsigned char key, int x, int y){
            presentationMode++;
            break;
     }
+    break;
+  case 'p':
+    if (perspectiveMode == 0){
+      perspectiveMode++;
+      camera->OrthoProjection();
+    }
+    else{
+      perspectiveMode = 0;
+      camera->PerspProjection();
+    }
+    break;
   }
 
 }
 /////////////////////////////////////////////////////////////////////// SETUP
 
+void mouse(int button, int state, int x, int y)
+{
+  if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
+  {
+    mouseX = x;
+    mouseY = y;
+    RMBdown = true;
+  //  xdiff = x - yrot;
+  //  ydiff = -y + xrot;
+  }
+  else  if (button == GLUT_RIGHT_BUTTON && state == GLUT_UP)
+  {
+    RMBdown = false;
+
+  }
+}
+
+void moveCamera(int x, int y){
+ // int timeDiff = glutGet(GLUT_ELAPSED_TIME) - elapsedTime;
+ // std::cout << timeDiff << std::endl;
+
+  float xMovement = (float) x / 100;
+  float yMovement = (float) y / 100;
+  GLfloat *aux;
+  float theta = camera->theta + yMovement;
+  float phi = camera->phi + xMovement;
+  float radius = camera->radius;
+
+  if (theta > PI - 0.1f){
+    theta = PI -0.1f;
+  }
+  else if (theta < 0.1f){
+    theta = 0.1f;
+  }
+
+  if (phi > PI * 2){
+    phi = 0;
+  }
+  else if (phi < 0){
+    phi = PI * 2;
+  }
+
+  camera->theta = theta;
+  camera->phi = phi;
+
+  float newEye [] = { radius*sinf(theta ) * cosf(phi ),
+                      radius*sinf(theta ) * sinf(phi ),
+                      radius * cosf(theta ) };
+  float newCenter [] = { 0.5,0.5,0.5 };
+
+ 
+
+  aux = matrixManipulator->GetView(newEye, newCenter, camera->up);
+
+  free(camera->viewMatrix);
+  camera->viewMatrix = aux;
+  camera->ChangeViewMatrix();
+
+  glutPostRedisplay();
+
+}
+
+void mouseMotion(int x, int y)
+{
+  int diffX = mouseX - x;
+  int diffY = mouseY - y;
+  mouseX = x;
+  mouseY = y;
+  if (RMBdown)
+  {
+   
+    moveCamera(diffX, diffY);
+ 
+  }
+}
 
 void setupCallbacks() 
 {
@@ -247,6 +358,8 @@ void setupCallbacks()
 	glutReshapeFunc(reshape);
 	glutTimerFunc(0,timer,0);
   glutKeyboardFunc(processKeys);
+  glutMouseFunc(mouse);
+  glutMotionFunc(mouseMotion);
 }
 
 void setupOpenGL() {
@@ -306,6 +419,14 @@ void init(int argc, char* argv[])
 int main(int argc, char* argv[])
 {
 	init(argc, argv);
+  
+ /* matrixManipulator->quaternionManipulator.qtest1();
+  matrixManipulator->quaternionManipulator.qtest2();
+  matrixManipulator->quaternionManipulator.qtest3();
+  matrixManipulator->quaternionManipulator.qtest4();
+  matrixManipulator->quaternionManipulator.qtest5();
+  matrixManipulator->quaternionManipulator.qtest6();
+  */
 	glutMainLoop();	
 	exit(EXIT_SUCCESS);
 }

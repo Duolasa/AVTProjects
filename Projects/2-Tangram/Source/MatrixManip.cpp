@@ -122,7 +122,7 @@ void MatrixManip::fillWithIdentity(GLfloat* piecesMatrices []){
 }
 
 void MatrixManip::fillWithPresetPosition(GLfloat* piecesMatrices []){
-  for (int i = 0; i < 8; i++){
+/*  for (int i = 0; i < 8; i++){
     free(piecesMatrices[i]);
   }
 
@@ -179,6 +179,6 @@ void MatrixManip::fillWithPresetPosition(GLfloat* piecesMatrices []){
 
   piecesMatrices[7] = getIdentity();
 
-
+  */
 }
 

@@ -11,8 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{67AF1445-7D01-4777-9181-10987C52DEB1}</ProjectGuid>
-    <RootNamespace>My2Tangram</RootNamespace>
+    <ProjectGuid>{E94F1EED-C1CD-4185-9FE8-426FFB29495D}</ProjectGuid>
+    <RootNamespace>My3Tangram3D</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -70,14 +70,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source\assignment_2.cpp" />
+    <ClCompile Include="Source\assignment_3.cpp" />
+    <ClCompile Include="Source\Camera.cpp" />
     <ClCompile Include="Source\MatrixManip.cpp" />
+    <ClCompile Include="Source\QuaternionManipulator.cpp" />
     <ClCompile Include="Source\ShaderManipulator.cpp" />
     <ClCompile Include="Source\TangramManipulator.cpp" />
     <ClCompile Include="Source\TangramPiece.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Camera.h" />
     <ClInclude Include="Source\MatrixManip.h" />
+    <ClInclude Include="Source\QuaternionManipulator.h" />
     <ClInclude Include="Source\ShaderManipulator.h" />
     <ClInclude Include="Source\TangramManipulator.h" />
     <ClInclude Include="Source\TangramPiece.h" />
