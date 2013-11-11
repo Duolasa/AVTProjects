@@ -13,7 +13,7 @@ class TangramManipulator
 {
 public:
   GLuint VaoId;
-  TangramPiece pieces[8];
+  TangramPiece pieces[9];
   MatrixManip matrixGenerator;
 
 public:
