@@ -55,11 +55,14 @@ GLfloat* MatrixManip::GetRotation(float a[3], float angle){
       0.0f, 0.0f, 0.0f, 1.0f
     };// Row Major
 
+    std::cout << "-----------------" << std::endl;
+
     GLfloat *rotation = new GLfloat[16];
     for (int i = 0; i < 16; i++){
       rotation[i] = aux[i];
+      std::cout << aux[i] << "  ";
     }
-
+    std::cout << std::endl;
     return rotation;
   }
 

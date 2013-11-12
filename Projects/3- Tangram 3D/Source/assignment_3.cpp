@@ -263,10 +263,13 @@ void processKeys(unsigned char key, int x, int y){
     if (perspectiveMode == 0){
       perspectiveMode++;
       camera->OrthoProjection();
+      std::cout << "Ortho View" << std::endl;
     }
     else{
       perspectiveMode = 0;
       camera->PerspProjection();
+      std::cout << "Perspective View" << std::endl;
+
     }
     break;
   }
@@ -325,7 +328,6 @@ void moveCamera(int x, int y){
   float newCenter [] = { 0.5,0.5,0.5 };
 
  
-
   aux = matrixManipulator->GetView(newEye, newCenter, camera->up);
 
   free(camera->viewMatrix);
@@ -419,14 +421,6 @@ void init(int argc, char* argv[])
 int main(int argc, char* argv[])
 {
 	init(argc, argv);
-  
- /* matrixManipulator->quaternionManipulator.qtest1();
-  matrixManipulator->quaternionManipulator.qtest2();
-  matrixManipulator->quaternionManipulator.qtest3();
-  matrixManipulator->quaternionManipulator.qtest4();
-  matrixManipulator->quaternionManipulator.qtest5();
-  matrixManipulator->quaternionManipulator.qtest6();
-  */
 	glutMainLoop();	
 	exit(EXIT_SUCCESS);
 }

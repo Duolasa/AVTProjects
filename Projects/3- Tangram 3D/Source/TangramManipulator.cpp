@@ -57,9 +57,9 @@ void TangramManipulator::CreatePieces(){
   pieces[1].vertices.push_back({ { 0.525f, -0.525f, 0.0f, 1.0f }, { 0.8f, 0.0f, 0.2f, 1.0f } });
   pieces[1].vertices.push_back({ { 0.525f, 0.525f, 0.0f, 1.0f }, { 0.8f, 0.0f, 0.2f, 1.0f } });
   pieces[1].vertices.push_back({ { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.8f, 0.0f, 0.2f, 1.0f } });
-  pieces[1].vertices.push_back({ { 0.525f, -0.525f, -0.15f, 1.0f }, { 0.4f, 0.0f, 0.2f, 1.0f } });
-  pieces[1].vertices.push_back({ { 0.525f, 0.525f, -0.15f, 1.0f }, { 0.4f, 0.0f, 0.2f, 1.0f } });
-  pieces[1].vertices.push_back({ { 0.0f, 0.0f, -0.15f, 1.0f }, { 0.4f, 0.0f, 0.2f, 1.0f } });
+  pieces[1].vertices.push_back({ { 0.525f, -0.525f, -0.12f, 1.0f }, { 0.4f, 0.0f, 0.2f, 1.0f } });
+  pieces[1].vertices.push_back({ { 0.525f, 0.525f, -0.12f, 1.0f }, { 0.4f, 0.0f, 0.2f, 1.0f } });
+  pieces[1].vertices.push_back({ { 0.0f, 0.0f, -0.12f, 1.0f }, { 0.4f, 0.0f, 0.2f, 1.0f } });
   pieces[1].indices.push_back(0);
   pieces[1].indices.push_back(1);
   pieces[1].indices.push_back(2);
@@ -277,49 +277,49 @@ void TangramManipulator::CreatePieces(){
   pieces[6].vertices.push_back({ { -0.2625f, 0.2625f, -0.09f, 1.0f }, { 0.3f, 0.3f, 0.3f, 1.0f } });
   pieces[6].vertices.push_back({ { -0.2625f, -0.2625f, -0.09f, 1.0f }, { 0.3f, 0.3f, 0.3f, 1.0f } });
   pieces[6].indices.push_back(0);
+  pieces[6].indices.push_back(2);
   pieces[6].indices.push_back(1);
   pieces[6].indices.push_back(2);
-  pieces[6].indices.push_back(2);
-  pieces[6].indices.push_back(3);
   pieces[6].indices.push_back(0);
+  pieces[6].indices.push_back(3);
   pieces[6].indices.push_back(4);
-  pieces[6].indices.push_back(6);
   pieces[6].indices.push_back(5);
   pieces[6].indices.push_back(6);
-  pieces[6].indices.push_back(4);
-  pieces[6].indices.push_back(7);
-
-  pieces[6].indices.push_back(3);
-  pieces[6].indices.push_back(2);
-  pieces[6].indices.push_back(7);
-
-  pieces[6].indices.push_back(2);
   pieces[6].indices.push_back(6);
-  pieces[6].indices.push_back(7);
-
-  pieces[6].indices.push_back(0);
   pieces[6].indices.push_back(7);
   pieces[6].indices.push_back(4);
 
   pieces[6].indices.push_back(3);
   pieces[6].indices.push_back(7);
-  pieces[6].indices.push_back(0);
-
-  pieces[6].indices.push_back(0);
-  pieces[6].indices.push_back(5);
-  pieces[6].indices.push_back(1);
-
-  pieces[6].indices.push_back(4);
-  pieces[6].indices.push_back(5);
-  pieces[6].indices.push_back(0);
+  pieces[6].indices.push_back(2);
 
   pieces[6].indices.push_back(2);
-  pieces[6].indices.push_back(1);
+  pieces[6].indices.push_back(7);
   pieces[6].indices.push_back(6);
 
+  pieces[6].indices.push_back(0);
+  pieces[6].indices.push_back(4);
+  pieces[6].indices.push_back(7);
+
+  pieces[6].indices.push_back(3);
+  pieces[6].indices.push_back(0);
+  pieces[6].indices.push_back(7);
+
+  pieces[6].indices.push_back(0);
   pieces[6].indices.push_back(1);
   pieces[6].indices.push_back(5);
+
+  pieces[6].indices.push_back(4);
+  pieces[6].indices.push_back(0);
+  pieces[6].indices.push_back(5);
+
+  pieces[6].indices.push_back(2);
   pieces[6].indices.push_back(6);
+  pieces[6].indices.push_back(1);
+
+  pieces[6].indices.push_back(1);
+  pieces[6].indices.push_back(6);
+  pieces[6].indices.push_back(5);
   pieces[6].createBuffers();
 
 
@@ -392,54 +392,84 @@ void TangramManipulator::FillWithIdentity(){
 
 void TangramManipulator::FillWithPresetPosition(){
   float z [] = { 0.0f, 0.0f, 1.0f };
+  float x [] = { 1.0f, 0.0f, 0.0f };
+
 
   GLfloat* rotation = matrixGenerator.GetRotation(z, 90.0f);
-  GLfloat* translation = matrixGenerator.GetTranslation(-0.527f, 0.0f, 0.0f);
-  pieces[0].transformationMatrix = matrixGenerator.Multiply(translation, rotation);
+  GLfloat* rotation2 = matrixGenerator.GetRotation(x, -90.0f);
+  GLfloat* translation = matrixGenerator.GetTranslation(-0.527f, 1.0f, 1.0f);
+  GLfloat* multiplication = matrixGenerator.Multiply(translation, rotation);
+  pieces[0].transformationMatrix = matrixGenerator.Multiply(rotation2, multiplication);
   free(rotation);
   free(translation);
+  free(rotation2);
+  free(multiplication);
 
 
   rotation = matrixGenerator.GetRotation(z, 180.0f);
-  translation = matrixGenerator.GetTranslation(0.527f, 0.0f, 0.0f);
-  pieces[1].transformationMatrix = matrixGenerator.Multiply(translation, rotation);
+  rotation2 = matrixGenerator.GetRotation(x, -90.0f);
+  translation = matrixGenerator.GetTranslation(0.527f, 1.0f, -1.0f);
+  multiplication = matrixGenerator.Multiply(translation, rotation);
+  pieces[1].transformationMatrix = matrixGenerator.Multiply(rotation2, multiplication);
   free(rotation);
   free(translation);
+  free(rotation2);
+  free(multiplication);
 
 
   rotation = matrixGenerator.GetRotation(z, 90.0f);
-  translation = matrixGenerator.GetTranslation(-0.29f, -0.2625f, 0.0f);
-  pieces[2].transformationMatrix = matrixGenerator.Multiply(translation, rotation);
+  rotation2 = matrixGenerator.GetRotation(x, -90.0f);
+  translation = matrixGenerator.GetTranslation(-0.29f, 0.7375f, 0.5f);
+  multiplication = matrixGenerator.Multiply(translation, rotation);
+  pieces[2].transformationMatrix = matrixGenerator.Multiply(rotation2, multiplication);
   free(rotation);
   free(translation);
+  free(rotation2);
+  free(multiplication);
 
 
   rotation = matrixGenerator.GetRotation(z, -45.0f);
-  translation = matrixGenerator.GetTranslation(0.53f, -0.75f, 0.0f);
-  pieces[3].transformationMatrix = matrixGenerator.Multiply(translation, rotation);
+  rotation2 = matrixGenerator.GetRotation(x, -90.0f);
+  translation = matrixGenerator.GetTranslation(0.53f, 0.25f, 1.0f);
+  multiplication = matrixGenerator.Multiply(translation, rotation);
+  pieces[3].transformationMatrix = matrixGenerator.Multiply(rotation2, multiplication);
   free(rotation);
   free(translation);
+  free(rotation2);
+  free(multiplication);
 
 
   rotation = matrixGenerator.GetRotation(z, 90.0f);
-  translation = matrixGenerator.GetTranslation(0.0f, -0.52f, 0.0f);
-  pieces[4].transformationMatrix = matrixGenerator.Multiply(translation, rotation);
+  rotation2 = matrixGenerator.GetRotation(x, -90.0f);
+  translation = matrixGenerator.GetTranslation(0.0f, 0.48f, -0.80f);
+  multiplication = matrixGenerator.Multiply(translation, rotation);
+  pieces[4].transformationMatrix = matrixGenerator.Multiply(rotation2, multiplication);
   free(rotation);
   free(translation);
+  free(rotation2);
+  free(multiplication);
 
 
   rotation = matrixGenerator.GetRotation(z, 00.0f);
-  translation = matrixGenerator.GetTranslation(-0.54f, 0.0f, 0.0f);
-  pieces[5].transformationMatrix = matrixGenerator.Multiply(translation, rotation);
+  rotation2 = matrixGenerator.GetRotation(x, -90.0f);
+  translation = matrixGenerator.GetTranslation(-0.54f, 1.0f, -0.3f);
+  multiplication = matrixGenerator.Multiply(translation, rotation);
+  pieces[5].transformationMatrix = matrixGenerator.Multiply(rotation2, multiplication);
   free(rotation);
   free(translation);
+  free(rotation2);
+  free(multiplication);
 
 
   rotation = matrixGenerator.GetRotation(z, -90.0f);
-  translation = matrixGenerator.GetTranslation(0.69f, -0.91f, 0.0f);
-  pieces[6].transformationMatrix = matrixGenerator.Multiply(translation, rotation);
+  rotation2 = matrixGenerator.GetRotation(x, -90.0f);
+  translation = matrixGenerator.GetTranslation(0.69f, 0.09f, 0.0f);
+  multiplication = matrixGenerator.Multiply(translation, rotation);
+  pieces[6].transformationMatrix = matrixGenerator.Multiply(rotation2, multiplication);
   free(rotation);
   free(translation);
+  free(rotation2);
+  free(multiplication);
 
 }
 
