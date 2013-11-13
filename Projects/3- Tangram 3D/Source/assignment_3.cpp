@@ -263,7 +263,7 @@ void processKeys(unsigned char key, int x, int y){
     if (perspectiveMode == 0){
       perspectiveMode++;
       camera->OrthoProjection();
-      std::cout << "Ortho View" << std::endl;
+      std::cout << "Orthographic View" << std::endl;
     }
     else{
       perspectiveMode = 0;
@@ -418,10 +418,19 @@ void init(int argc, char* argv[])
 
 }
 
+
+QuaternionManipulator quaternionManipulator;
 int main(int argc, char* argv[])
 {
 	init(argc, argv);
 	glutMainLoop();	
+  quaternionManipulator.qtest1();
+  quaternionManipulator.qtest2();
+  quaternionManipulator.qtest3();
+  quaternionManipulator.qtest4();
+  quaternionManipulator.qtest5();
+  quaternionManipulator.qtest6();
+
 	exit(EXIT_SUCCESS);
 }
 

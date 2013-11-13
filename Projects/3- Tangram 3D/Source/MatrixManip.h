@@ -2,15 +2,12 @@
 #include "GL/glew.h"
 #include "GL/freeglut.h"
 #include <math.h>
-#include "QuaternionManipulator.h"
 
 typedef GLfloat Matrix[16];
 
 class MatrixManip
 {
 public:
-  QuaternionManipulator quaternionManipulator;
-
 
   MatrixManip();
   GLfloat* GetIdentity();

@@ -4,8 +4,7 @@
 #include "MatrixManip.h"
 #include <iostream>
 #include <vector>
-
-
+#include "QuaternionManipulator.h"
 
 #define VERTICES 0
 #define COLORS 1
@@ -19,17 +18,24 @@ public:
     GLfloat RGBA[4];
   } Vertex;
 
+
 public:
+  QuaternionManipulator quaternionManipulator;
   GLuint VaoId, VboId[2];
   std::vector<Vertex>vertices;
   std::vector<GLubyte> indices;
+  bool dirtyMatrix;
   GLfloat* transformationMatrix;
+  Quaternion Rotation;
+  Vector Translation;
 
 public:
   TangramPiece();
   ~TangramPiece();
   void draw(GLint UniformId);
   void createBuffers();
-
+  void rotate(float theta, Vector axis);
+  void move(float movement[3]);
+  void recalculateMatrix();
 };
 

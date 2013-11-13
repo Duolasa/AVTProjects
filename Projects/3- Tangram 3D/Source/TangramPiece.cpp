@@ -3,6 +3,18 @@
 
 TangramPiece::TangramPiece()
 {
+  Translation.x = 0.0f;
+  Translation.y = 0.0f;
+  Translation.z = 0.0f;
+  Translation.w = 0.0f;
+
+  Rotation.x = 0.0f;
+  Rotation.y = 0.0f;
+  Rotation.z = 0.0f;
+  Rotation.t = 0.0f;
+
+  dirtyMatrix = false;
+
 }
 
 void TangramPiece::createBuffers(){
@@ -41,6 +53,18 @@ void TangramPiece::draw(GLint UniformId){
 
 }
 
+void TangramPiece::rotate(float theta, Vector axis){
+  Quaternion newRotation = quaternionManipulator.qFromAngleAxis(theta, axis);
+  
+ // Rotation = quaternionManipulator.qMultiply
+
+}
+void TangramPiece::move(float movement[3]){
+
+}
+void TangramPiece::recalculateMatrix(){
+
+}
 
 TangramPiece::~TangramPiece()
 {

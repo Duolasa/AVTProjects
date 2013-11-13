@@ -13,6 +13,13 @@ const Vector vNormalize(const Vector& v);
 const void vPrint(const std::string s, const Vector& v);
 const bool vEqual(const Vector& v0, const Vector& v1);
 
+
+
+QuaternionManipulator::QuaternionManipulator(){}
+
+
+
+
 const Vector QuaternionManipulator::vNormalize(const Vector& v) 
 {
 	Vector vn;
