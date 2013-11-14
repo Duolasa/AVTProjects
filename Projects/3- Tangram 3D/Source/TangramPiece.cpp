@@ -59,15 +59,16 @@ void TangramPiece::draw(GLint UniformId){
   }
 }
  
-void TangramPiece::changeIntermediateMatrix(float frame){  //this part of the code is really really really bad
+void TangramPiece::changeIntermediateMatrix(float frame){  //could be done with lerp
 
-  Vector aux;
+  Vector axis;
   float angle;
-  quaternionManipulator.qToAngleAxis(Rotation, angle, aux);
-  float rotation[3] = { aux.x, aux.y, aux.z };
+  quaternionManipulator.qToAngleAxis(Rotation, angle, axis);
+  Quaternion intermediateQuaternion = quaternionManipulator.qFromAngleAxis(angle * frame, axis);
 
   free(intermediateMatrix);
-  intermediateMatrix = matrixManipulator.GetRotation(rotation, angle * frame);
+  intermediateMatrix = matrixManipulator.GetIdentity();
+  quaternionManipulator.qGLMatrix(intermediateQuaternion, intermediateMatrix);
 
   intermediateMatrix[3] = transformationMatrix[3] * frame;
   intermediateMatrix[7] = transformationMatrix[7] * frame;
