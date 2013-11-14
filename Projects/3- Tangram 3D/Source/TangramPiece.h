@@ -26,8 +26,9 @@ public:
   GLuint VaoId, VboId[2];
   std::vector<Vertex>vertices;
   std::vector<GLubyte> indices;
-  bool dirtyMatrix;
+  bool dirtyMatrix, beingAnimated;
   GLfloat* transformationMatrix;
+  GLfloat* intermediateMatrix;
   Quaternion Rotation;
   Vector Translation;
 
@@ -40,6 +41,7 @@ public:
   void rotate(float theta, Vector axis);
   void move(float movement[3]);
   void recalculateMatrix();
+  void changeIntermediateMatrix(float frame);
   void resetPiece();
 };
 

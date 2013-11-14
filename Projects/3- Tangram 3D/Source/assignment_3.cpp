@@ -342,6 +342,13 @@ void mouseMotion(int x, int y)
   }
 }
 
+void animate(int i){
+
+  tangramManipulator->animatePieces();
+  glutTimerFunc(25, animate, 0);
+
+}
+
 
 void setupCallbacks() 
 {
@@ -350,6 +357,7 @@ void setupCallbacks()
 	glutIdleFunc(idle);
 	glutReshapeFunc(reshape);
 	glutTimerFunc(0,timer,0);
+  glutTimerFunc(25, animate, 0);
   glutKeyboardFunc(processKeys);
   glutMouseFunc(mouse);
   glutMotionFunc(mouseMotion);
@@ -406,7 +414,6 @@ void init(int argc, char* argv[])
 	createBufferObjects();
 	setupCallbacks();
   tangramManipulator->CreatePieces();
-
 }
 
 

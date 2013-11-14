@@ -4,6 +4,7 @@
 TangramPiece::TangramPiece()
 {
   transformationMatrix = matrixManipulator.GetIdentity();
+  intermediateMatrix = matrixManipulator.GetIdentity();
   resetPiece();
  
 
@@ -41,16 +42,40 @@ void TangramPiece::draw(GLint UniformId){
   if (dirtyMatrix){
     recalculateMatrix();
   }
+  
+  if (!beingAnimated){
+    glBindVertexArray(VaoId);
+    glUniformMatrix4fv(UniformId, 1, GL_TRUE, transformationMatrix);
+    // glDrawArrays(GL_TRIANGLES, 0, 36);
+    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_BYTE, (GLvoid*) 0);
+    glBindVertexArray(0);
+  }
+  else{
+    glBindVertexArray(VaoId);
+    glUniformMatrix4fv(UniformId, 1, GL_TRUE, intermediateMatrix);
+    // glDrawArrays(GL_TRIANGLES, 0, 36);
+    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_BYTE, (GLvoid*) 0);
+    glBindVertexArray(0);
+  }
+}
+ 
+void TangramPiece::changeIntermediateMatrix(float frame){  //this part of the code is really really really bad
 
-  glBindVertexArray(VaoId);
-  glUniformMatrix4fv(UniformId, 1, GL_TRUE, transformationMatrix);
-  // glDrawArrays(GL_TRIANGLES, 0, 36);
-  glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_BYTE, (GLvoid*) 0);
-  glBindVertexArray(0);
+  Vector aux;
+  float angle;
+  quaternionManipulator.qToAngleAxis(Rotation, angle, aux);
+  float rotation[3] = { aux.x, aux.y, aux.z };
 
-  return;
+  free(intermediateMatrix);
+  intermediateMatrix = matrixManipulator.GetRotation(rotation, angle * frame);
+
+  intermediateMatrix[3] = transformationMatrix[3] * frame;
+  intermediateMatrix[7] = transformationMatrix[7] * frame;
+  intermediateMatrix[11] = transformationMatrix[11] * frame;
+
 
 }
+
 
 void TangramPiece::rotate(float theta, Vector axis){
   Quaternion newRotation = quaternionManipulator.qFromAngleAxis(theta, axis);
@@ -97,7 +122,7 @@ void TangramPiece::resetPiece(){
   free(transformationMatrix);
   transformationMatrix = matrixManipulator.GetIdentity();
   dirtyMatrix = false;
-  
+  beingAnimated = false;
   
 }
 
