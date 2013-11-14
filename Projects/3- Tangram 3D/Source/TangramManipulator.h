@@ -18,8 +18,8 @@ public:
 
 public:
   void CreatePieces();
-  void FillWithIdentity();
-  void FillWithPresetPosition();
+  void ResetPieces();
+  void FillWithPresetPosition(int pieceID);
   void DrawPieces(GLint UniformId);
   TangramManipulator();
   ~TangramManipulator();

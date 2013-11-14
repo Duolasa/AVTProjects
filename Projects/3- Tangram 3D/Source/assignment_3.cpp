@@ -59,23 +59,23 @@
 #define degreesToRadians 0.01745329251f
 #define PI 3.14159265359f
 
-int presentationMode = 1; // 0 - normal ; 1 - arranged, 2- silhouette
 int perspectiveMode = 1; // 0- Orthographic ; 1 - Perspective
 int WinX = 640, WinY = 480;
 int WindowHandle = 0;
 bool RMBdown = false;
 unsigned int FrameCount = 0;
 float eye [] = { 5, 5, 5 };
-float center [] = { 0, 0, 0 };
+float center [] = { 0, 0, 1 };
 float up [] = { 0, 0, 1 };
 int mouseX, mouseY, elapsedTime;
 static TangramManipulator* tangramManipulator = new TangramManipulator;
 static ShaderManipulator* shaderManipulator = new ShaderManipulator;
 MatrixManip* matrixManipulator = new MatrixManip();
+int lastMovedPiece = 0;
 
 static Camera* camera = new Camera(matrixManipulator->GetView(eye, center, up),
-                                     matrixManipulator->GetOrthoProjection(2,-2,-2,2,1,10),
-                                     matrixManipulator->GetPerspProjection(30, 640.0f / 480.0f, 1, 10));
+                                     matrixManipulator->GetOrthoProjection(2,-2,-2,2,1,20),
+                                     matrixManipulator->GetPerspProjection(30, 640.0f / 480.0f, 1, 20));
 
 GLuint VertexShaderId, FragmentShaderId, ProgramId, SharedMatricesBuffer;
 GLint ModelMatrixId, SilhouetteId, SharedMatricesId;
@@ -231,51 +231,6 @@ void timer(int value)
     glutTimerFunc(1000, timer, 0);
 }
 
-void processKeys(unsigned char key, int x, int y){
-  if (presentationMode > 2){
-    presentationMode = 0;
-  }
-
-  switch (key){
-  case 't': 
-    switch (presentationMode){
-    case 0: 
-           tangramManipulator->FillWithIdentity();   
-           glUseProgram(ProgramId);
-           glUniform1i(SilhouetteId, 0);
-           glUseProgram(0);
-           presentationMode++;
-           break;
-    case 1: 
-           tangramManipulator->FillWithPresetPosition();
-           presentationMode++;
-
-           break;
-    case 2:    
-           glUseProgram(ProgramId);
-           glUniform1i(SilhouetteId, 1);
-           glUseProgram(0);
-           presentationMode++;
-           break;
-    }
-    break;
-  case 'p':
-    if (perspectiveMode == 0){
-      perspectiveMode++;
-      camera->OrthoProjection();
-      std::cout << "Orthographic View" << std::endl;
-    }
-    else{
-      perspectiveMode = 0;
-      camera->PerspProjection();
-      std::cout << "Perspective View" << std::endl;
-
-    }
-    break;
-  }
-
-}
-/////////////////////////////////////////////////////////////////////// SETUP
 
 void mouse(int button, int state, int x, int y)
 {
@@ -292,14 +247,15 @@ void mouse(int button, int state, int x, int y)
     RMBdown = false;
 
   }
+
 }
 
 void moveCamera(int x, int y){
  // int timeDiff = glutGet(GLUT_ELAPSED_TIME) - elapsedTime;
  // std::cout << timeDiff << std::endl;
 
-  float xMovement = (float) x / 100;
-  float yMovement = (float) y / 100;
+  float xMovement = (float) x / 200;
+  float yMovement = (float) y / 200;
   GLfloat *aux;
   float theta = camera->theta + yMovement;
   float phi = camera->phi + xMovement;
@@ -325,9 +281,9 @@ void moveCamera(int x, int y){
   float newEye [] = { radius*sinf(theta ) * cosf(phi ),
                       radius*sinf(theta ) * sinf(phi ),
                       radius * cosf(theta ) };
-  float newCenter [] = { 0.5,0.5,0.5 };
+  float newCenter [] = { 0.0f, 0.0f, 1.0f };
 
- 
+
   aux = matrixManipulator->GetView(newEye, newCenter, camera->up);
 
   free(camera->viewMatrix);
@@ -335,6 +291,40 @@ void moveCamera(int x, int y){
   camera->ChangeViewMatrix();
 
   glutPostRedisplay();
+
+}
+
+
+void processKeys(unsigned char key, int x, int y){
+
+
+  switch (key){
+  case 'r':
+          tangramManipulator->ResetPieces();
+          glUseProgram(ProgramId);
+          glUniform1i(SilhouetteId, 0);
+          glUseProgram(0);
+          lastMovedPiece = 0;
+          break;
+
+  case 't':
+      tangramManipulator->FillWithPresetPosition( lastMovedPiece++);
+      
+      break;
+
+  case 'p':
+    if (perspectiveMode == 0){
+      perspectiveMode++;
+      camera->OrthoProjection();
+    }
+    else{
+      perspectiveMode = 0;
+      camera->PerspProjection();
+
+    }
+    break;
+
+  }
 
 }
 
@@ -351,6 +341,7 @@ void mouseMotion(int x, int y)
  
   }
 }
+
 
 void setupCallbacks() 
 {
@@ -419,18 +410,10 @@ void init(int argc, char* argv[])
 }
 
 
-QuaternionManipulator quaternionManipulator;
 int main(int argc, char* argv[])
 {
 	init(argc, argv);
 	glutMainLoop();	
-  quaternionManipulator.qtest1();
-  quaternionManipulator.qtest2();
-  quaternionManipulator.qtest3();
-  quaternionManipulator.qtest4();
-  quaternionManipulator.qtest5();
-  quaternionManipulator.qtest6();
-
 	exit(EXIT_SUCCESS);
 }
 

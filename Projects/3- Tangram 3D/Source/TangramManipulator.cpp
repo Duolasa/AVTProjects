@@ -19,7 +19,7 @@ void TangramManipulator::CreatePieces(){
   pieces[0].vertices.push_back( { { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }});
   pieces[0].vertices.push_back({ { -0.525f, -0.525f, -0.1f, 1.0f }, { 0.0f, 0.0f, 0.50f, 1.0f } });
   pieces[0].vertices.push_back({ { 0.525f, -0.525f, -0.1f, 1.0f }, { 0.0f, 0.0f, 0.50f, 1.0f } });
-  pieces[0].vertices.push_back({ { 0.0f, 0.0f, -0.1f, 1.0f }, { 0.0f, 0.0f, 1.0f, 0.50f } });
+  pieces[0].vertices.push_back({ { 0.0f, 0.0f, -0.1f, 1.0f }, { 0.0f, 0.0f, 0.5f, 0.50f } });
   pieces[0].indices.push_back(0);
   pieces[0].indices.push_back(1);
   pieces[0].indices.push_back(2);
@@ -380,96 +380,65 @@ void TangramManipulator::DrawPieces(GLint UniformId){
 }
 
 
-void TangramManipulator::FillWithIdentity(){
+void TangramManipulator::ResetPieces(){
   for (int i = 0; i < 8; i++)
   {
-    free(pieces[i].transformationMatrix);
-    pieces[i].transformationMatrix = matrixGenerator.GetIdentity();
+    pieces[i].resetPiece();
   }
 }
 
 
 
-void TangramManipulator::FillWithPresetPosition(){
-  float z [] = { 0.0f, 0.0f, 1.0f };
-  float x [] = { 1.0f, 0.0f, 0.0f };
+void TangramManipulator::FillWithPresetPosition(int pieceID){
+  switch (pieceID){
+  case 0:{
+    pieces[0].rotate(90, { 0, 1, 0, 0 });
+    pieces[0].rotate(90, { 1, 0, 0, 0 });
+    float movement0 [] = { 0.525f, 3.0f, 1.5f };
+    pieces[0].move(movement0);
+    break;
+    }
 
+  case 1:{
+    pieces[1].rotate(90, { 1, 0, 0, 0 });
+    float movement1 [] = { -0.525f, -2.9f, 1.5f };
+    pieces[1].move(movement1);
+    break; }
 
-  GLfloat* rotation = matrixGenerator.GetRotation(z, 90.0f);
-  GLfloat* rotation2 = matrixGenerator.GetRotation(x, -90.0f);
-  GLfloat* translation = matrixGenerator.GetTranslation(-0.527f, 1.0f, 1.0f);
-  GLfloat* multiplication = matrixGenerator.Multiply(translation, rotation);
-  pieces[0].transformationMatrix = matrixGenerator.Multiply(rotation2, multiplication);
-  free(rotation);
-  free(translation);
-  free(rotation2);
-  free(multiplication);
+  case 2:{
+    pieces[2].rotate(90, { 1, 0, 0, 0 });
+    pieces[2].rotate(-90, { 0, 0, 1, 0 });
+    float movement2 [] = { -0.27f, 2.5f, 1.76f };
+    pieces[2].move(movement2);
+    break; }
 
+  case 3:{
+    pieces[3].rotate(90, { 1, 0, 0, 0 });
+    pieces[3].rotate(-135, { 0, 0, 1, 0 });
+    float movement3 [] = { 0.50f, 0.0f, 0.75f };
+    pieces[3].move(movement3);
+    break; }
 
-  rotation = matrixGenerator.GetRotation(z, 180.0f);
-  rotation2 = matrixGenerator.GetRotation(x, -90.0f);
-  translation = matrixGenerator.GetTranslation(0.527f, 1.0f, -1.0f);
-  multiplication = matrixGenerator.Multiply(translation, rotation);
-  pieces[1].transformationMatrix = matrixGenerator.Multiply(rotation2, multiplication);
-  free(rotation);
-  free(translation);
-  free(rotation2);
-  free(multiplication);
+  case 4:{
+    pieces[4].rotate(90, { 1, 0, 0, 0 });
+    pieces[4].rotate(90, { 0, 0, 1, 0 });
+    float movement4 [] = { 0.0f, -3.5f, 0.95f };
+    pieces[4].move(movement4);
+    break; }
 
+  case 5:{
+    pieces[5].rotate(90, { 1, 0, 0, 0 });
+    float movement5 [] = { -0.52f, 0.3f, 2.03f };
+    pieces[5].move(movement5);
+    break; }
 
-  rotation = matrixGenerator.GetRotation(z, 90.0f);
-  rotation2 = matrixGenerator.GetRotation(x, -90.0f);
-  translation = matrixGenerator.GetTranslation(-0.29f, 0.7375f, 0.5f);
-  multiplication = matrixGenerator.Multiply(translation, rotation);
-  pieces[2].transformationMatrix = matrixGenerator.Multiply(rotation2, multiplication);
-  free(rotation);
-  free(translation);
-  free(rotation2);
-  free(multiplication);
+  case 6:{
+    pieces[6].rotate(-90, { 1, 0, 0, 0 });
+    pieces[6].rotate(90, { 0, 0, 1, 0 });
+    float movement6 [] = { 0.69f, 2.3f, 0.6f };
+    pieces[6].move(movement6);
+    break; }
 
-
-  rotation = matrixGenerator.GetRotation(z, -45.0f);
-  rotation2 = matrixGenerator.GetRotation(x, -90.0f);
-  translation = matrixGenerator.GetTranslation(0.53f, 0.25f, 1.0f);
-  multiplication = matrixGenerator.Multiply(translation, rotation);
-  pieces[3].transformationMatrix = matrixGenerator.Multiply(rotation2, multiplication);
-  free(rotation);
-  free(translation);
-  free(rotation2);
-  free(multiplication);
-
-
-  rotation = matrixGenerator.GetRotation(z, 90.0f);
-  rotation2 = matrixGenerator.GetRotation(x, -90.0f);
-  translation = matrixGenerator.GetTranslation(0.0f, 0.48f, -0.80f);
-  multiplication = matrixGenerator.Multiply(translation, rotation);
-  pieces[4].transformationMatrix = matrixGenerator.Multiply(rotation2, multiplication);
-  free(rotation);
-  free(translation);
-  free(rotation2);
-  free(multiplication);
-
-
-  rotation = matrixGenerator.GetRotation(z, 00.0f);
-  rotation2 = matrixGenerator.GetRotation(x, -90.0f);
-  translation = matrixGenerator.GetTranslation(-0.54f, 1.0f, -0.3f);
-  multiplication = matrixGenerator.Multiply(translation, rotation);
-  pieces[5].transformationMatrix = matrixGenerator.Multiply(rotation2, multiplication);
-  free(rotation);
-  free(translation);
-  free(rotation2);
-  free(multiplication);
-
-
-  rotation = matrixGenerator.GetRotation(z, -90.0f);
-  rotation2 = matrixGenerator.GetRotation(x, -90.0f);
-  translation = matrixGenerator.GetTranslation(0.69f, 0.09f, 0.0f);
-  multiplication = matrixGenerator.Multiply(translation, rotation);
-  pieces[6].transformationMatrix = matrixGenerator.Multiply(rotation2, multiplication);
-  free(rotation);
-  free(translation);
-  free(rotation2);
-  free(multiplication);
-
+  }
 }
 
