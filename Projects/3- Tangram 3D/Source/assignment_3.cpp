@@ -234,25 +234,36 @@ void timer(int value)
 
 void mouse(int button, int state, int x, int y)
 {
-  if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
-  {
+  if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN){
     mouseX = x;
     mouseY = y;
     RMBdown = true;
-  //  xdiff = x - yrot;
-  //  ydiff = -y + xrot;
+
   }
-  else  if (button == GLUT_RIGHT_BUTTON && state == GLUT_UP)
-  {
+  if (button == GLUT_RIGHT_BUTTON && state == GLUT_UP){
     RMBdown = false;
-
   }
 
+  if (button == 3){
+    GLfloat* scale = matrixManipulator->GetScale(1.05f, 1.05f, 1.05f);
+    GLfloat* oldView = camera->viewMatrix;
+    camera->viewMatrix = matrixManipulator->Multiply(scale, oldView);
+    camera->ChangeViewMatrix();
+    free(scale);
+    free(oldView);
+  }
+
+  if (button == 4){
+    GLfloat* scale = matrixManipulator->GetScale(0.95f, 0.95f, 0.95f);
+    GLfloat* oldView = camera->viewMatrix;
+    camera->viewMatrix = matrixManipulator->Multiply(scale, oldView); 
+    camera->ChangeViewMatrix();
+    free(scale);
+    free(oldView);
+  } 
 }
 
 void moveCamera(int x, int y){
- // int timeDiff = glutGet(GLUT_ELAPSED_TIME) - elapsedTime;
- // std::cout << timeDiff << std::endl;
 
   float xMovement = (float) x / 200;
   float yMovement = (float) y / 200;

@@ -415,6 +415,7 @@ void TangramManipulator::FillWithPresetPosition(int pieceID){
     pieces[0].rotate(90, { 1, 0, 0, 0 });
     float movement0 [] = { 0.525f, 3.0f, 1.5f };
     pieces[0].move(movement0);
+    pieces[0].changeIntermediateMatrix(0.0f);
     break;
     }
 
@@ -423,6 +424,8 @@ void TangramManipulator::FillWithPresetPosition(int pieceID){
     pieces[1].rotate(90, { 1, 0, 0, 0 });
     float movement1 [] = { -0.525f, -2.9f, 1.5f };
     pieces[1].move(movement1);
+    pieces[1].changeIntermediateMatrix(0.0f);
+
     break;
     }
 
@@ -432,6 +435,8 @@ void TangramManipulator::FillWithPresetPosition(int pieceID){
     pieces[2].rotate(-90, { 0, 0, 1, 0 });
     float movement2 [] = { -0.27f, 2.5f, 1.76f };
     pieces[2].move(movement2);
+    pieces[2].changeIntermediateMatrix(0.0f);
+
     break;
     }
 
@@ -441,6 +446,8 @@ void TangramManipulator::FillWithPresetPosition(int pieceID){
     pieces[3].rotate(-135, { 0, 0, 1, 0 });
     float movement3 [] = { 0.50f, 0.0f, 0.75f };
     pieces[3].move(movement3);
+    pieces[3].changeIntermediateMatrix(0.0f);
+
     break;
     }
 
@@ -450,6 +457,8 @@ void TangramManipulator::FillWithPresetPosition(int pieceID){
     pieces[4].rotate(90, { 0, 0, 1, 0 });
     float movement4 [] = { 0.0f, -3.5f, 0.95f };
     pieces[4].move(movement4);
+    pieces[4].changeIntermediateMatrix(0.0f);
+
     break;
     }
 
@@ -458,6 +467,8 @@ void TangramManipulator::FillWithPresetPosition(int pieceID){
     pieces[5].rotate(90, { 1, 0, 0, 0 });
     float movement5 [] = { -0.52f, 0.3f, 2.03f };
     pieces[5].move(movement5);
+    pieces[5].changeIntermediateMatrix(0.0f);
+
     break;
     }
 
@@ -467,6 +478,8 @@ void TangramManipulator::FillWithPresetPosition(int pieceID){
     pieces[6].rotate(90, { 0, 0, 1, 0 });
     float movement6 [] = { 0.69f, 2.3f, 0.6f };
     pieces[6].move(movement6);
+    pieces[6].changeIntermediateMatrix(0.0f);
+
     break;
     }
 
