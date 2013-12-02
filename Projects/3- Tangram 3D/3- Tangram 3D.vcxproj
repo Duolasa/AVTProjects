@@ -72,6 +72,7 @@
   <ItemGroup>
     <ClCompile Include="Source\assignment_3.cpp" />
     <ClCompile Include="Source\Camera.cpp" />
+    <ClCompile Include="Source\Matrix.cpp" />
     <ClCompile Include="Source\MatrixManip.cpp" />
     <ClCompile Include="Source\QuaternionManipulator.cpp" />
     <ClCompile Include="Source\ShaderManipulator.cpp" />
@@ -80,6 +81,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Camera.h" />
+    <ClInclude Include="Source\Matrix.h" />
     <ClInclude Include="Source\MatrixManip.h" />
     <ClInclude Include="Source\QuaternionManipulator.h" />
     <ClInclude Include="Source\ShaderManipulator.h" />

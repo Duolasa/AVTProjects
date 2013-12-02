@@ -177,6 +177,7 @@ GLfloat* MatrixManip::GetView(float eye[3], float center[3], float up[3]){    //
   return result;
 
 }
+
 GLfloat* MatrixManip::GetOrthoProjection(float top, float bottom, float left, float right, float nearZ, float farZ){    //COLUMN MAJOR
   GLfloat *result = new GLfloat[16] {0};
 

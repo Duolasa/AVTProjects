@@ -271,19 +271,34 @@ void moveCamera(int x, int y){
   float theta = camera->theta + yMovement;
   float phi = camera->phi + xMovement;
   float radius = camera->radius;
-
-  if (theta > PI - 0.1f){
-    theta = PI -0.1f;
+  /*
+  if (theta > PI * 2){
+    theta -= PI * 2;
   }
-  else if (theta < 0.1f){
-    theta = 0.1f;
+  else if (theta < 0){
+    theta += PI * 2;
   }
 
   if (phi > PI * 2){
-    phi = 0;
+    phi -=  PI * 2;
   }
   else if (phi < 0){
-    phi = PI * 2;
+    phi += PI * 2;
+  }
+  */
+  
+  if (theta > PI - 0.1f){
+	  theta = PI - 0.1f;
+  }
+  else if (theta < 0.1f){
+	  theta = 0.1f;
+  }
+
+  if (phi > PI * 2){
+	  phi = 0;
+  }
+  else if (phi < 0){
+	  phi = PI * 2;
   }
 
   camera->theta = theta;
