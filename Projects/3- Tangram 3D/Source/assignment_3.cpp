@@ -46,7 +46,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-
+#include "Matrix.h"
 #include "GL/glew.h"
 #include "GL/freeglut.h"
 #include "MatrixManip.h"
@@ -446,6 +446,7 @@ void init(int argc, char* argv[])
 int main(int argc, char* argv[])
 {
 	init(argc, argv);
+
 	glutMainLoop();	
 	exit(EXIT_SUCCESS);
 }

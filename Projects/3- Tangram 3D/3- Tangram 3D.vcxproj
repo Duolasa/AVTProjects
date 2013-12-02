@@ -78,6 +78,7 @@
     <ClCompile Include="Source\ShaderManipulator.cpp" />
     <ClCompile Include="Source\TangramManipulator.cpp" />
     <ClCompile Include="Source\TangramPiece.cpp" />
+    <ClCompile Include="Source\Vector.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Camera.h" />
@@ -87,6 +88,7 @@
     <ClInclude Include="Source\ShaderManipulator.h" />
     <ClInclude Include="Source\TangramManipulator.h" />
     <ClInclude Include="Source\TangramPiece.h" />
+    <ClInclude Include="Source\Vector.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
