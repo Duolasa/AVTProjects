@@ -1,5 +1,6 @@
 
-#include "Engine.h"
+#include "Vector.h"
+#include "Test.h"
 
 namespace engine{
 
@@ -154,7 +155,7 @@ namespace engine{
 			Vec3 v2 = Vec3(3);
 			CHECK(v1 >= v2);
 		}
-		/////
+	
 		void Vec3MinusOperator() {
 			Vec3 v1 = Vec3(5);
 			Vec3 v2 = Vec3(3);

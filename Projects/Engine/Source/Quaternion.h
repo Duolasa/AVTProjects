@@ -20,9 +20,9 @@ namespace engine {
 		float t, x, y, z;
 
 		// Constructors
-		Quaternion();
-		Quaternion(float tt, float xx, float yy, float zz);
-		Quaternion(float theta, Vec4 axis);
+					Quaternion();
+					Quaternion(float tt, float xx, float yy, float zz);
+					Quaternion(float theta, Vec4 axis);
 
 		//Functions
 		void		ToAngleAxis(float& theta, Vec4& axis);
@@ -37,7 +37,7 @@ namespace engine {
 		Quaternion  operator+(const Quaternion &q) const;
 		Quaternion  operator-(const Quaternion &q) const;
 		Quaternion  operator*(const Quaternion &q) const;
-		Quaternion  operator*(float s) const;
+		Quaternion  operator*(float s) const;	
 
 		Mat4		getMatrix();
 	};

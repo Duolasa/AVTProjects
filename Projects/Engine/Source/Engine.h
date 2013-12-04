@@ -6,7 +6,9 @@
 #include "Quaternion.h"
 #include "Node.h"
 
-#include "Test.h"
-#include "TestSuite.h"
+#include "OpenGLErrors.h"
+
+#include "Shader.h"
+
 
 #endif //ENGINE_H

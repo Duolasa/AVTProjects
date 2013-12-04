@@ -23,6 +23,10 @@
       <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Source\shaders\frag.shader" />
+    <None Include="Source\shaders\vert.shader" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{85982A9D-44C1-4FCF-904A-CA10CFB559CF}</ProjectGuid>
     <RootNamespace>My4SomaCube</RootNamespace>

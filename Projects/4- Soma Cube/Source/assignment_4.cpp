@@ -1,17 +1,17 @@
 ///////////////////////////////////////////////////////////////////////
 //
-// Assignment 1 consists in the following:
+// Assignment 4 consists in the following:
 //
-// - Download the libraries: Glew and FreeGlut for your system.
-// - Create a project to compile, link and run the code provided in this section in your favourite programming environment (classes will use VS2010).
-// - Update your graphics drivers to their latest versions.
-// - Verify what OpenGL contexts your computer can support, focusing on OpenGL 2.1, OpenGL 3.2, OpenGL 3.3.
+// - Access to different pieces of SomaCube.
+// - Snap pieces.
+// - Manipulation of pieces.
+// - Construct object with pieces.
+// - Basic graph scene.
 //
-// Further suggestions to verify your understanding of the concepts explored in lab 1:
-//
-// - Change the program so display is called at 60 FPS.
-//
-// (c)2013 by Carlos Martinho
+// (c)2013	by Ruben Rebelo		nº55419
+//			by Élvio Abreu		nº74100
+//			by Rui Dias			nº67079
+//			by Pedro Lousada	nº68582
 //
 ///////////////////////////////////////////////////////////////////////
 
@@ -24,21 +24,51 @@
 #include "GL/freeglut.h"
 
 #include "Engine.h"
-#include "VectorTest.h"
+#include "Node.h"
 
 using namespace engine;
 
 #define CAPTION "Hello Blank World"
+
+#define VERTICES 0
+#define COLORS 1
 
 int WinX = 640, WinY = 480;
 int WindowHandle = 0;
 unsigned int FrameCount = 0;
 bool hasReshape = false;
 
+GLint UboId, UniformId;
+const GLuint UBO_BP = 0;
+
+Shader *normalShader = new Shader();
+/////////////////////////////////////////////////////////////////////// SHADERs
+
+
+void createShaderProgram()
+{
+	normalShader->loadShaders("shaders/vert.shader", "shaders/frag.shader");
+	normalShader->bindAttribute(VERTICES, "in_Position");
+	normalShader->bindAttribute(COLORS, "in_Color");
+	normalShader->linkProg();
+	UniformId = normalShader->getUniformLocation("ModelMatrix");
+	UboId = normalShader->getUniformBlockIndex("SharedMatrices", UBO_BP);
+
+	checkOpenGLError("ERROR: Could not create shaders.");
+}
+
+void destroyShaderProgram()
+{
+	normalShader->~Shader();
+
+	checkOpenGLError("ERROR: Could not destroy shaders.");
+}
+
 /////////////////////////////////////////////////////////////////////// CALLBACKS
 
 void cleanup()
 {
+	destroyShaderProgram();
 }
 
 void frameTimer(int value){
@@ -79,6 +109,15 @@ void timer(int value)
     FrameCount = 0;
     glutTimerFunc(1000, timer, 0);
 	
+}
+
+///////////////////////////////////////////////////////////////////////
+
+void test(){
+	std::cerr << normalShader->id() << std::endl;
+	SHADER_LIST::instance()->add("normal", normalShader);
+	Shader* s = SHADER_LIST::instance()->get("normal");
+	std::cerr << s->id() << std::endl;
 }
 
 
@@ -138,33 +177,20 @@ void init(int argc, char* argv[])
 	setupGLUT(argc, argv);
 	setupGLEW();
 	setupOpenGL();
+	createShaderProgram();
+	//test();
 	setupCallbacks();
 }
 
 int main(int argc, char* argv[])
 {
-	
-	Node root(0);
-	Node n1(1);
-	Node n2(2);
-
-	root.AddNode(&n1);
-	root.AddNode(&n2);
-
-	root.Draw();
-	
-
-	n1.id = 9999;
-
-	root.Draw();
-	/** /
+	/**/
 	init(argc, argv);
 	glutMainLoop();	
 	exit(EXIT_SUCCESS);
 	/**/
 
-	system("pause");
-
+	
 }
 
 ///////////////////////////////////////////////////////////////////////

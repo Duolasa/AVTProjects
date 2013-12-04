@@ -13,7 +13,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include "Engine.h"
+#include "Test.h"
+#include "TestSuite.h"
 #include "VectorTest.h"
 #include "MatrixTest.h"
 
@@ -24,7 +25,7 @@ int main(int argc, char* argv[])
 
 	TestSuite testSuite = TestSuite("Engine");
 	testSuite.addTest(new VectorTest());
-  testSuite.addTest(new MatrixTest());
+	testSuite.addTest(new MatrixTest());
 	testSuite.run();
 
 }

@@ -21,6 +21,12 @@
     <ClInclude Include="Source\MatrixTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Test.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\TestSuite.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\testing_stuff.cpp">

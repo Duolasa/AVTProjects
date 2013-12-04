@@ -23,7 +23,7 @@ engine::Quaternion::Quaternion(float theta, engine::Vec4 axis){
 	q.Clean();
 	q.Normalize();
 
-	t = q.t;
+	t = q.t; 
 	x = q.x;
 	y = q.y;
 	z = q.z;
@@ -35,13 +35,12 @@ void engine::Quaternion::ToAngleAxis(float& theta, engine::Vec4& axis){
 	engine::Quaternion qn = q.Normalize();
 	theta = 2.0f * acos(qn.t) * (float)RADIANS_TO_DEGREES;
 	float s = sqrt(1.0f - qn.t*qn.t);
-	if (s < qThreshold) {
+	if(s < qThreshold) {
 		axis.x = 1.0f;
 		axis.y = 0.0f;
 		axis.z = 0.0f;
 		axis.w = 1.0f;
-	}
-	else {
+	} else {
 		axis.x = qn.x / s;
 		axis.y = qn.y / s;
 		axis.z = qn.z / s;
@@ -50,10 +49,10 @@ void engine::Quaternion::ToAngleAxis(float& theta, engine::Vec4& axis){
 }
 
 void engine::Quaternion::Clean(){
-	if (fabs(t) < qThreshold) t = 0.0f;
-	if (fabs(x) < qThreshold) x = 0.0f;
-	if (fabs(y) < qThreshold) y = 0.0f;
-	if (fabs(z) < qThreshold) z = 0.0f;
+	if(fabs(t) < qThreshold) t = 0.0f;
+	if(fabs(x) < qThreshold) x = 0.0f;
+	if(fabs(y) < qThreshold) y = 0.0f;
+	if(fabs(z) < qThreshold) z = 0.0f;
 }
 
 float engine::Quaternion::Quadrance(){
@@ -126,7 +125,7 @@ engine::Quaternion engine::Quaternion::operator*(float s) const {
 }
 
 engine::Mat4 engine::Quaternion::getMatrix(){
-	engine::Quaternion q = engine::Quaternion::Quaternion(t, x, y, z);
+	engine::Quaternion q = engine::Quaternion::Quaternion(t, x, y ,z);
 	engine::Quaternion qn = q.Normalize();
 
 	Mat4 mat = Mat4();
@@ -141,19 +140,19 @@ engine::Mat4 engine::Quaternion::getMatrix(){
 	float zz = qn.z * qn.z;
 	float zt = qn.z * qn.t;
 
-	mat.matrix[0] = 1.0f - 2.0f * (yy + zz);
-	mat.matrix[1] = 2.0f * (xy + zt);
-	mat.matrix[2] = 2.0f * (xz - yt);
+	mat.matrix[0] = 1.0f - 2.0f * ( yy + zz );
+	mat.matrix[1] = 2.0f * ( xy + zt );
+	mat.matrix[2] = 2.0f * ( xz - yt );
 	mat.matrix[3] = 0.0f;
 
-	mat.matrix[4] = 2.0f * (xy - zt);
-	mat.matrix[5] = 1.0f - 2.0f * (xx + zz);
-	mat.matrix[6] = 2.0f * (yz + xt);
+	mat.matrix[4] = 2.0f * ( xy - zt );
+	mat.matrix[5] = 1.0f - 2.0f * ( xx + zz );
+	mat.matrix[6] = 2.0f * ( yz + xt );
 	mat.matrix[7] = 0.0f;
 
-	mat.matrix[8] = 2.0f * (xz + yt);
-	mat.matrix[9] = 2.0f * (yz - xt);
-	mat.matrix[10] = 1.0f - 2.0f * (xx + yy);
+	mat.matrix[8] = 2.0f * ( xz + yt );
+	mat.matrix[9] = 2.0f * ( yz - xt );
+	mat.matrix[10] = 1.0f - 2.0f * ( xx + yy );
 	mat.matrix[11] = 0.0f;
 
 	mat.matrix[12] = 0.0f;
@@ -170,7 +169,7 @@ engine::Mat4 engine::Quaternion::getMatrix(){
 
 engine::Quaternion engine::Slerp(const engine::Quaternion& q0, const engine::Quaternion& q1, float k){
 	float angle = acos(q0.x*q1.x + q0.y*q1.y + q0.z*q1.z + q0.t*q1.t);
-	float k0 = sin((1 - k)*angle) / sin(angle);
+	float k0 = sin((1-k)*angle) / sin(angle);
 	float k1 = sin(k*angle) / sin(angle);
 	return (q0 *k0) + (q1 * k1);
 }
@@ -182,7 +181,7 @@ engine::Quaternion engine::Lerp(const engine::Quaternion& q0, const engine::Quat
 	return (q0 * k0) + (q1 * k1);
 }
 
-const void vPrint(const std::string s, const engine::Vec4& v)
+const void vPrint(const std::string s, const engine::Vec4& v) 
 {
 	std::cerr << s << " = (" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ")" << std::endl;
 }
@@ -193,7 +192,7 @@ void engine::PrintAngleAxis(const std::string& s, engine::Quaternion& q){
 	float thetaf;
 	engine::Vec4 axis_f;
 	q.ToAngleAxis(thetaf, axis_f);
-	std::cerr << "angle = " << thetaf << " ";
+	std::cerr << "angle = " << thetaf << " "; 
 	vPrint("axis", axis_f);
 }
 

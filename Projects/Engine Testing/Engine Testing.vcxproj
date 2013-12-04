@@ -12,6 +12,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\MatrixTest.h" />
+    <ClInclude Include="Source\Test.h" />
+    <ClInclude Include="Source\TestSuite.h" />
     <ClInclude Include="Source\VectorTest.h" />
   </ItemGroup>
   <ItemGroup>

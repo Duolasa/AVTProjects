@@ -1,4 +1,6 @@
-#pragma once
+#ifndef NODE_H
+#define NODE_H
+
 #include <vector>
 #include <iostream>
 #include "Vector.h"
@@ -30,3 +32,5 @@ namespace engine{
 	};
 
 }
+
+#endif //NODE_H
