@@ -1,13 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.20623.1 VSUPREVIEW
+VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "1-GettingStarted", "..\Projects\1-GettingStarted\1-GettingStarted.vcxproj", "{C41F02B5-9834-472C-B474-9124F65E4CAF}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "2-Tangram", "..\Projects\2-Tangram\2-Tangram.vcxproj", "{67AF1445-7D01-4777-9181-10987C52DEB1}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "3- Tangram 3D", "..\Projects\3- Tangram 3D\3- Tangram 3D.vcxproj", "{E94F1EED-C1CD-4185-9FE8-426FFB29495D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "4-Soma Cube", "..\Projects\4- Soma Cube\4-Soma Cube.vcxproj", "{85982A9D-44C1-4FCF-904A-CA10CFB559CF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Engine", "..\Projects\Engine\Engine.vcxproj", "{DBCE90B1-8D23-4833-9A35-E628CF3AC9AF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Engine Testing", "..\Projects\Engine Testing\Engine Testing.vcxproj", "{71E87C6E-7156-4FAD-8076-DDFFBBD87DEE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +33,18 @@ Global
 		{E94F1EED-C1CD-4185-9FE8-426FFB29495D}.Debug|Win32.Build.0 = Debug|Win32
 		{E94F1EED-C1CD-4185-9FE8-426FFB29495D}.Release|Win32.ActiveCfg = Release|Win32
 		{E94F1EED-C1CD-4185-9FE8-426FFB29495D}.Release|Win32.Build.0 = Release|Win32
+		{85982A9D-44C1-4FCF-904A-CA10CFB559CF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{85982A9D-44C1-4FCF-904A-CA10CFB559CF}.Debug|Win32.Build.0 = Debug|Win32
+		{85982A9D-44C1-4FCF-904A-CA10CFB559CF}.Release|Win32.ActiveCfg = Release|Win32
+		{85982A9D-44C1-4FCF-904A-CA10CFB559CF}.Release|Win32.Build.0 = Release|Win32
+		{DBCE90B1-8D23-4833-9A35-E628CF3AC9AF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DBCE90B1-8D23-4833-9A35-E628CF3AC9AF}.Debug|Win32.Build.0 = Debug|Win32
+		{DBCE90B1-8D23-4833-9A35-E628CF3AC9AF}.Release|Win32.ActiveCfg = Release|Win32
+		{DBCE90B1-8D23-4833-9A35-E628CF3AC9AF}.Release|Win32.Build.0 = Release|Win32
+		{71E87C6E-7156-4FAD-8076-DDFFBBD87DEE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{71E87C6E-7156-4FAD-8076-DDFFBBD87DEE}.Debug|Win32.Build.0 = Debug|Win32
+		{71E87C6E-7156-4FAD-8076-DDFFBBD87DEE}.Release|Win32.ActiveCfg = Release|Win32
+		{71E87C6E-7156-4FAD-8076-DDFFBBD87DEE}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

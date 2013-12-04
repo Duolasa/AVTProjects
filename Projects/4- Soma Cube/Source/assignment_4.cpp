@@ -1,4 +1,3 @@
-
 ///////////////////////////////////////////////////////////////////////
 //
 // Assignment 1 consists in the following:
@@ -20,19 +19,31 @@
 #include <sstream>
 #include <string>
 
+
 #include "GL/glew.h"
 #include "GL/freeglut.h"
+
+#include "Engine.h"
+#include "VectorTest.h"
+
+using namespace engine;
 
 #define CAPTION "Hello Blank World"
 
 int WinX = 640, WinY = 480;
 int WindowHandle = 0;
 unsigned int FrameCount = 0;
+bool hasReshape = false;
 
 /////////////////////////////////////////////////////////////////////// CALLBACKS
 
 void cleanup()
 {
+}
+
+void frameTimer(int value){
+	glutPostRedisplay();
+	
 }
 
 void display()
@@ -41,11 +52,13 @@ void display()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	// Draw something
 	glutSwapBuffers();
+
+	glutTimerFunc(static_cast<int>(ceil(1000/60.0)), frameTimer, 0);
 }
 
 void idle()
 {
-	glutPostRedisplay();
+	//glutPostRedisplay();
 }
 
 void reshape(int w, int h)
@@ -53,6 +66,7 @@ void reshape(int w, int h)
 	WinX = w;
 	WinY = h;
 	glViewport(0, 0, WinX, WinY);
+
 }
 
 void timer(int value)
@@ -64,7 +78,10 @@ void timer(int value)
 	glutSetWindowTitle(s.c_str());
     FrameCount = 0;
     glutTimerFunc(1000, timer, 0);
+	
 }
+
+
 
 /////////////////////////////////////////////////////////////////////// SETUP
 
@@ -75,6 +92,7 @@ void setupCallbacks()
 	glutIdleFunc(idle);
 	glutReshapeFunc(reshape);
 	glutTimerFunc(0,timer,0);
+	glutTimerFunc(0, frameTimer, 0);
 }
 
 void setupOpenGL() {
@@ -100,7 +118,7 @@ void setupGLUT(int argc, char* argv[])
 {
 	glutInit(&argc, argv);
 	
-	glutInitContextVersion(3, 3);
+	glutInitContextVersion(3, 3); //Opengl 4.3 max
 	glutInitContextFlags(GLUT_FORWARD_COMPATIBLE);
 	glutInitContextProfile(GLUT_CORE_PROFILE);
 
@@ -125,9 +143,28 @@ void init(int argc, char* argv[])
 
 int main(int argc, char* argv[])
 {
+	
+	Node root(0);
+	Node n1(1);
+	Node n2(2);
+
+	root.AddNode(&n1);
+	root.AddNode(&n2);
+
+	root.Draw();
+	
+
+	n1.id = 9999;
+
+	root.Draw();
+	/** /
 	init(argc, argv);
 	glutMainLoop();	
 	exit(EXIT_SUCCESS);
+	/**/
+
+	system("pause");
+
 }
 
 ///////////////////////////////////////////////////////////////////////
