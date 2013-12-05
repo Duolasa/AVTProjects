@@ -6,7 +6,6 @@
 
 #include "Shader.h"
 #include "Matrix.h"
-//#include "OpenGLErrors.h"
 
 
 namespace engine {

@@ -28,6 +28,7 @@
     <None Include="Source\shaders\vert.shader" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Manager.h" />
     <ClInclude Include="Source\Pieces.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

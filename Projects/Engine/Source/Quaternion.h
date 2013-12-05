@@ -8,9 +8,9 @@
 #define DEGREES_TO_RADIANS 0.01745329251994329547
 #define RADIANS_TO_DEGREES 57.29577951308232185913
 
-#define X_AXIS Vec4(1, 0, 0, 1);
-#define Y_AXIS Vec4(0, 1, 0, 1);
-#define Z_AXIS Vec4(0, 0, 1, 1);
+#define X_AXIS Vec4(1, 0, 0, 1)
+#define Y_AXIS Vec4(0, 1, 0, 1)
+#define Z_AXIS Vec4(0, 0, 1, 1)
 
 namespace engine {
 

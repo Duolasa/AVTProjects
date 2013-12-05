@@ -34,6 +34,11 @@ namespace engine {
 			it=_list.find(name);
 			return it->second;
 		}
+
+		std::map<std::string, T*> getList(){
+			std::map<std::string, T*> it = _list;
+			return it;
+		}
 	};
 
 }

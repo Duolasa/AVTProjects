@@ -87,6 +87,7 @@
     <ClInclude Include="Source\Matrix.h" />
     <ClInclude Include="Source\Node.h" />
     <ClInclude Include="Source\OpenGLErrors.h" />
+    <ClInclude Include="Source\Pieces.h" />
     <ClInclude Include="Source\Quaternion.h" />
     <ClInclude Include="Source\Shader.h" />
     <ClInclude Include="Source\Vector.h" />
