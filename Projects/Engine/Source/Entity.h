@@ -32,26 +32,49 @@ namespace engine {
 			Entity();
 			~Entity();
 			GLuint VaoId, VboId[2];
+			
 			template<size_t N>
-			Entity(const Vertex (&Vertices)[N],const GLuint UBO){
+			void createBufferObject(const Vertex (&Vertices)[N],const GLuint UBO){
+				
 				size = N;
-				verts = Vertices;
+
 				UBO_BP = UBO;
 
-				createBufferObjects();
+			
+			glGenVertexArrays(1, &VaoId);
+			glBindVertexArray(VaoId);
+
+			glGenBuffers(2, VboId);
+
+			glBindBuffer(GL_ARRAY_BUFFER, VboId[0]);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), (Vertices), GL_STATIC_DRAW);
+			glEnableVertexAttribArray(VERTICES);
+			glVertexAttribPointer(VERTICES, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+			glEnableVertexAttribArray(COLORS);
+			glVertexAttribPointer(COLORS, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid *)sizeof(Vertices[0].XYZW));
+
+			glBindBuffer(GL_UNIFORM_BUFFER, VboId[1]);
+			glBufferData(GL_UNIFORM_BUFFER, sizeof(Mat4)*2, 0, GL_STREAM_DRAW);
+			glBindBufferBase(GL_UNIFORM_BUFFER, UBO_BP, VboId[1]);
+
+			glBindVertexArray(0);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glBindBuffer(GL_UNIFORM_BUFFER, 0);
+			glDisableVertexAttribArray(VERTICES);
+			glDisableVertexAttribArray(COLORS);
+			
+				//checkOpenGLError("ERROR: Could not create VAOs and VBOs.");
+				//createBufferObject();
 			}
 
-			void createBufferObjects();
-
-			//void destroyBufferObjects();
-			//void draw(GLuint progShaderId, GLint UniformId, Mat4 m);
-			//GLint getVboId(int i);
-			
+			void destroyBufferObject();
+			void draw(ShaderProgram* progShader, GLint UniformId, Mat4 m);
+			GLuint getVboId();
 
 		};
 
-		//typedef ListManager<Entity> ENTITY_LIST;
-		//ListManager<Entity>* ListManager<Entity>::_instance = 0;
+		typedef ListManager<Entity> ENTITY_LIST;
+		ListManager<Entity>* ListManager<Entity>::_instance = 0;
 }
 
 #endif //ENTITY_H

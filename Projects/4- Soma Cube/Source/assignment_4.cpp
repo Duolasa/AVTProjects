@@ -24,9 +24,12 @@
 #include "GL/freeglut.h"
 
 #include "Engine.h"
-#include "Pieces.h"
+//#include "Shader.h"
+#include "OpenGLErrors.h"
+//#include "Pieces.h"
 
 using namespace engine;
+//using namespace avt;
 
 #define CAPTION "Hello Blank World"
 
@@ -62,9 +65,64 @@ void createShaderProgram()
 
 void destroyShaderProgram()
 {
-	normalShader->~ShaderProgram();
+	//normalShader.destroyShaderProgram();
 
+	glUseProgram(0);
+
+	//std::cerr << glIsShader(normalShader.vertexShader.id()) << std::endl;
+
+	unsigned int  vs = normalShader->vertexShader.getId();
+	unsigned int  fs = normalShader->fragmentShader.getId();
+	unsigned int  ps = normalShader->getId();
+	glDetachShader(ps, vs);
+	glDetachShader(ps, fs);
+	
+	
+	//std::cerr << normalShader.vertexShader.id() << std::endl;
+	
+	//glDeleteShader(fs);
+	normalShader->fragmentShader.delShader();
+	checkOpenGLError("ERROR: ...");
+	//glDeleteShader(vs);
+	glDeleteProgram(ps);
+	
 	checkOpenGLError("ERROR: Could not destroy shaders.");
+}
+
+//////////////////////////////////////////////////////////////////////// VBOs VAOs
+
+Entity entity;
+Manager manager;
+
+void createBufferObjects(){
+
+	manager.createPieces(UBO_BP);
+	entity.createBufferObject(PieceCube, UBO_BP);
+
+	checkOpenGLError("ERROR: Could not create VAOs VBOs");
+}
+
+void destroyBufferObject(){
+	
+	entity.destroyBufferObject();
+	manager.destroyPieces();
+	checkOpenGLError("ERROR: Could not destroy VAOs VBOs");
+}
+
+void draw(){
+	/**/
+	Mat4 projectionMatrix = GetPerspProjection(30,640/480.0f,1,15);
+	Mat4 viewMatrixx = GetView(Vec3(10,0,0),Vec3(0,0,0),Vec3(0,1,0));
+
+	
+	glBindBuffer(GL_UNIFORM_BUFFER, entity.getVboId());
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Mat4), viewMatrixx.matrix);
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(Mat4), sizeof(Mat4), projectionMatrix.matrix);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	/**/
+	
+	entity.draw(normalShader,UniformId,GetIdentity().matrix);
+	checkOpenGLError("ERROR: Could not draw");
 }
 
 /////////////////////////////////////////////////////////////////////// CALLBACKS
@@ -72,6 +130,7 @@ void destroyShaderProgram()
 void cleanup()
 {
 	destroyShaderProgram();
+	destroyBufferObject();
 }
 
 void frameTimer(int value){
@@ -84,6 +143,8 @@ void display()
 	++FrameCount;
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	// Draw something
+	draw();
+
 	glutSwapBuffers();
 
 	glutTimerFunc(static_cast<int>(ceil(1000/60.0)), frameTimer, 0);
@@ -117,7 +178,8 @@ void timer(int value)
 ///////////////////////////////////////////////////////////////////////
 
 void test(){
-	Entity a = Entity(vertices,0);
+	//Entity a = Entity(SmallLPiece,0);
+	
 }
 
 
@@ -178,7 +240,8 @@ void init(int argc, char* argv[])
 	setupGLEW();
 	setupOpenGL();
 	createShaderProgram();
-	test();
+	createBufferObjects();
+	//test();
 	setupCallbacks();
 }
 

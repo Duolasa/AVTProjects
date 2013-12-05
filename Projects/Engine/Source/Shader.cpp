@@ -64,6 +64,10 @@ engine::Shader::~Shader(){
 	glDeleteShader(shaderId);
 }
 
+void engine::Shader::delShader(){
+	glDeleteShader(shaderId);
+}
+
 GLuint engine::Shader::loadShader(GLenum type, const char *File){
 
 	GLuint shader = glCreateShader(type); 
@@ -96,7 +100,7 @@ void engine::Shader::loadFragmentShader(const char *fsFile){
 	shaderType = GL_FRAGMENT_SHADER;
 }
 
-unsigned int engine::Shader::id(){
+GLuint engine::Shader::getId(){
 	return shaderId;
 }
 
@@ -114,14 +118,14 @@ engine::ShaderProgram::ShaderProgram(engine::Shader vertex, engine::Shader fragm
 
 	setProgram();
 }
+engine::ShaderProgram::~ShaderProgram(){}
 
-engine::ShaderProgram::~ShaderProgram(){
+void engine::ShaderProgram::destroyShaderProgram(){
 	glUseProgram(0);
-	glDetachShader(ProgramId, vertexShader.id());
-	glDetachShader(ProgramId, fragmentShader.id());
-
-	vertexShader.~Shader();
-	fragmentShader.~Shader();
+	glDetachShader(ProgramId, vertexShader.getId());
+	glDetachShader(ProgramId, fragmentShader.getId());
+	glDeleteShader(fragmentShader.getId());
+	glDeleteShader(vertexShader.getId());
 	glDeleteProgram(ProgramId);
 }
 
@@ -135,7 +139,8 @@ void engine::ShaderProgram::loadShaders(const char *vsFile, const char *fsFile){
 void engine::ShaderProgram::loadShaders(engine::Shader vertex, engine::Shader fragment){
 	vertexShader = vertex;
 	fragmentShader = fragment;
-
+	vs = vertex.getId();
+	fs = fragment.getId();
 	setProgram();
 }
 
@@ -167,13 +172,13 @@ void engine::ShaderProgram::linkProg(){
 	
 }
 
-unsigned int engine::ShaderProgram::id(){
+GLuint engine::ShaderProgram::getId(){
 	return ProgramId;
 }
 
 void engine::ShaderProgram::setProgram(){
 	ProgramId = glCreateProgram();
-	glAttachShader(ProgramId, vertexShader.id()); 
-	glAttachShader(ProgramId, fragmentShader.id()); 
+	glAttachShader(ProgramId, vertexShader.getId()); 
+	glAttachShader(ProgramId, fragmentShader.getId()); 
 	
 }

@@ -9,6 +9,7 @@
 
 #include "ListManager.h"
 
+
 namespace engine {
 
 
@@ -27,21 +28,28 @@ namespace engine {
 		~Shader();
 		void loadVertexShader(const char *vsFile);
 		void loadFragmentShader(const char *fsFile);
-		unsigned int id();
-		GLuint getshaderType ();
+		GLuint getId();
+		GLenum getshaderType();
+		void delShader();
 
 	};
 
 	class ShaderProgram {
 	private:
-		Shader vertexShader;
-		Shader fragmentShader;
+		//Shader vertexShader;
+		//Shader fragmentShader;
 		GLuint ProgramId;
 
 	public:
+		Shader vertexShader;
+		Shader fragmentShader;
+		GLuint vs;
+		GLuint fs;
+
 		ShaderProgram();
 		ShaderProgram(Shader vertex, Shader fragment);
 		~ShaderProgram();
+		void destroyShaderProgram();
 		void loadShaders(const char *vsFile, const char *fsFile);
 		void loadShaders(Shader vertex, Shader fragment);
 		void bindAttribute(GLuint index, GLchar *name);
@@ -51,7 +59,7 @@ namespace engine {
 		void unbindProg();
 		void linkProg();
 		void setProgram();
-		unsigned int id();
+		GLuint getId();
 	};
 
 	typedef ListManager<ShaderProgram> SHADER_PROGRAM_LIST;

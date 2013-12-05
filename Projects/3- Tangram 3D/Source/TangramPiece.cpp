@@ -36,7 +36,6 @@ void TangramPiece::createBuffers(){
 
 }
 
-
 void TangramPiece::draw(GLint UniformId){
 
   if (dirtyMatrix){

@@ -73,9 +73,15 @@ GLuint ShaderManipulator::LoadFragmentShader(char* path){
     //Provide the infolog in whatever manor you deem best.
     //Exit with failure.
     glDeleteShader(FragmentShaderId); //Don't leak the shader.
-    std::cout << "Error on Fragment Shader Compiliation:  "<< &errorLog << std::endl;
+    std::cout << "Error on Fragment Shader Compiliation:  " << std::endl;
+
+	for (std::vector<char>::iterator it = errorLog.begin(); it != errorLog.end(); it++){
+		std::cout << (*it);
+	}
+	std::cout << std::endl;
     return NULL;
   }
+
 
   return FragmentShaderId;
 

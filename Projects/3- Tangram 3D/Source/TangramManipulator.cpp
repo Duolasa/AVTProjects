@@ -371,10 +371,10 @@ void TangramManipulator::CreatePieces(){
   }
 
 
-  mirror.vertices.push_back({ { 0.0f, -3.5f, 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } });
-  mirror.vertices.push_back({ { 0.0f, -3.5f, 3.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } });
-  mirror.vertices.push_back({ { 3.0f, -3.5f, 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } });
-  mirror.vertices.push_back({ { 3.0f, -3.5f, 3.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } });
+  mirror.vertices.push_back({ { -2.0f, -3.5f, 0.0f, 1.0f }, { 1.0f, 0.0f, 1.0f, 1.0f } });
+  mirror.vertices.push_back({ { -2.0f, -3.5f, 3.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } });
+  mirror.vertices.push_back({ { 2.0f, -3.5f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } });
+  mirror.vertices.push_back({ { 2.0f, -3.5f, 3.0f, 1.0f }, { 0.0f, 1.0f, 1.0f, 1.0f } });
   mirror.indices.push_back(0);
   mirror.indices.push_back(1);
   mirror.indices.push_back(2);
@@ -382,7 +382,6 @@ void TangramManipulator::CreatePieces(){
   mirror.indices.push_back(2);
   mirror.indices.push_back(1);
   mirror.createBuffers();
-
 }
 
 void TangramManipulator::DrawPieces(GLint UniformId){
@@ -392,9 +391,12 @@ void TangramManipulator::DrawPieces(GLint UniformId){
     pieces[i].draw(UniformId);
   }
 
-  mirror.draw(UniformId);
 }
 
+void TangramManipulator::DrawMirror(GLint UniformId){
+	mirror.draw(UniformId);
+
+}
 
 void TangramManipulator::ResetPieces(){
   for (int i = 0; i < 8; i++)

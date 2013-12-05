@@ -1,5 +1,5 @@
-#ifndef OPENGLERRORS_H
-#define OPENGLERRORS_H
+#ifndef OPENGL_ERRORS_H
+#define OPENGL_ERRORS_H
 
 #include <iostream>
 #include <sstream>

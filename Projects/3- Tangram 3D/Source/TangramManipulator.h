@@ -24,6 +24,7 @@ public:
   void animatePieces();
   void FillWithPresetPosition(int pieceID);
   void DrawPieces(GLint UniformId);
+  void DrawMirror(GLint UniformId);
   TangramManipulator();
   ~TangramManipulator();
 };

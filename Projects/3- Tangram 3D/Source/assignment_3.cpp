@@ -78,8 +78,8 @@ static Camera* camera = new Camera(matrixManipulator->GetView(eye, center, up),
                                      matrixManipulator->GetOrthoProjection(2,-2,-2,2,1,20),
                                      matrixManipulator->GetPerspProjection(30, 640.0f / 480.0f, 1, 20));
 
-GLuint VertexShaderId, FragmentShaderId, ProgramId, SharedMatricesBuffer;
-GLint ModelMatrixId, SilhouetteId, SharedMatricesId;
+GLuint VertexShaderId, FragmentShaderId, ProgramId, SharedMatricesBuffer, TextureShaderId, ProgramTextureId;
+GLint ModelMatrixId, SilhouetteId, SharedMatricesId, gsamplerId;
 const GLuint UBO_BP = 0;
 
 
@@ -116,6 +116,7 @@ void createShaderProgram()
   FragmentShaderId = shaderManipulator->LoadFragmentShader("../3- Tangram 3D/Source/Shaders/FragmentShader.txt");
 
 
+
 	ProgramId = glCreateProgram();
 	glAttachShader(ProgramId, VertexShaderId);
 	glAttachShader(ProgramId, FragmentShaderId);
@@ -131,7 +132,33 @@ void createShaderProgram()
 
   SharedMatricesId = glGetUniformBlockIndex(ProgramId, "SharedMatrices");
   glUniformBlockBinding(ProgramId, SharedMatricesId, UBO_BP);
+  
+  //mirror program-----------------------------------
+  glUseProgram(0);
+  ProgramTextureId = glCreateProgram();
 
+  TextureShaderId = shaderManipulator->LoadFragmentShader("../3- Tangram 3D/Source/Shaders/FragmentTextureShader.txt");
+  
+
+  glAttachShader(ProgramTextureId, VertexShaderId);
+
+  glAttachShader(ProgramTextureId, TextureShaderId);
+
+  glBindAttribLocation(ProgramTextureId, VERTICES, "in_Position");
+  glBindAttribLocation(ProgramTextureId, COLORS, "in_Color");
+  glLinkProgram(ProgramTextureId);
+
+  glUseProgram(ProgramTextureId);
+
+  ModelMatrixId = glGetUniformLocation(ProgramTextureId, "ModelMatrix");
+  gsamplerId = glGetUniformLocation(ProgramTextureId, "gsampler");
+
+  mirror.gsamplerId = gsamplerId;
+  SharedMatricesId = glGetUniformBlockIndex(ProgramTextureId, "SharedMatrices");
+  glUniformBlockBinding(ProgramTextureId, SharedMatricesId, UBO_BP);
+  
+	  
+  
 	checkOpenGLError("ERROR: Could not create shaders.");
 }
 
@@ -181,10 +208,18 @@ void drawScene()
 {
   glUseProgram(ProgramId);
 
+  mirror.Bind();
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  tangramManipulator->DrawPieces(ModelMatrixId);
+
+
+  mirror.Unbind();
 
   tangramManipulator->DrawPieces(ModelMatrixId);
   
-
+  glUseProgram(ProgramTextureId);
+   tangramManipulator->DrawMirror(ModelMatrixId);
+  
 	glUseProgram(0);
 	glBindVertexArray(0);
 
@@ -339,6 +374,8 @@ void processKeys(unsigned char key, int x, int y){
       
       break;
 
+
+
   case 'p':
     if (perspectiveMode == 0){
       perspectiveMode++;
@@ -448,7 +485,9 @@ int main(int argc, char* argv[])
 {
 	init(argc, argv);
 
-  mirror.CreateFrameBuffer(220, 240);
+  mirror.CreateFrameBuffer(640, 480);
+  mirror.CreateTexture(640, 480);
+  mirror.AddDepthBuffer();
   mirror.Unbind();
 
 	glutMainLoop();	
