@@ -24,7 +24,7 @@
 #include "GL/freeglut.h"
 
 #include "Engine.h"
-#include "Node.h"
+#include "Pieces.h"
 
 using namespace engine;
 
@@ -41,13 +41,16 @@ bool hasReshape = false;
 GLint UboId, UniformId;
 const GLuint UBO_BP = 0;
 
-Shader *normalShader = new Shader();
+ShaderProgram *normalShader = new ShaderProgram();
 /////////////////////////////////////////////////////////////////////// SHADERs
 
 
 void createShaderProgram()
 {
-	normalShader->loadShaders("shaders/vert.shader", "shaders/frag.shader");
+	//normalShader->loadShaders("shaders/vert.shader", "shaders/frag.shader");
+	Shader vertS = Shader(GL_VERTEX_SHADER, "shaders/vert.shader");
+	Shader fragS = Shader(GL_FRAGMENT_SHADER, "shaders/frag.shader");
+	normalShader->loadShaders(vertS,fragS);
 	normalShader->bindAttribute(VERTICES, "in_Position");
 	normalShader->bindAttribute(COLORS, "in_Color");
 	normalShader->linkProg();
@@ -59,7 +62,7 @@ void createShaderProgram()
 
 void destroyShaderProgram()
 {
-	normalShader->~Shader();
+	normalShader->~ShaderProgram();
 
 	checkOpenGLError("ERROR: Could not destroy shaders.");
 }
@@ -114,10 +117,7 @@ void timer(int value)
 ///////////////////////////////////////////////////////////////////////
 
 void test(){
-	std::cerr << normalShader->id() << std::endl;
-	SHADER_LIST::instance()->add("normal", normalShader);
-	Shader* s = SHADER_LIST::instance()->get("normal");
-	std::cerr << s->id() << std::endl;
+	Entity a = Entity(vertices,0);
 }
 
 
@@ -178,7 +178,7 @@ void init(int argc, char* argv[])
 	setupGLEW();
 	setupOpenGL();
 	createShaderProgram();
-	//test();
+	test();
 	setupCallbacks();
 }
 
@@ -190,7 +190,9 @@ int main(int argc, char* argv[])
 	exit(EXIT_SUCCESS);
 	/**/
 
-	
+	//SHADER_LIST::instance()->add("normal",normalShader);
+
+
 }
 
 ///////////////////////////////////////////////////////////////////////

@@ -42,6 +42,12 @@
     <ClInclude Include="Source\OpenGLErrors.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Entity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Matrix.cpp">
@@ -57,6 +63,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Entity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -27,6 +27,9 @@
     <None Include="Source\shaders\frag.shader" />
     <None Include="Source\shaders\vert.shader" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Pieces.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{85982A9D-44C1-4FCF-904A-CA10CFB559CF}</ProjectGuid>
     <RootNamespace>My4SomaCube</RootNamespace>
@@ -63,7 +66,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Users\Pedro\Documents\GitHub\AVTProjects\Projects\Engine Testing\Source;C:\Users\Pedro\Documents\GitHub\AVTProjects\Projects\Engine\Source;..\Projects\Engine Testing\Source;..\Projects\Engine\Source;..\..\Dependencies\freeglut\include;..\..\Dependencies\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\IST\AVT\AVTProjects\Projects\Engine Testing\Source;E:\IST\AVT\AVTProjects\Projects\Engine\Source;C:\Users\Pedro\Documents\GitHub\AVTProjects\Projects\Engine Testing\Source;C:\Users\Pedro\Documents\GitHub\AVTProjects\Projects\Engine\Source;..\Projects\Engine Testing\Source;..\Projects\Engine\Source;..\..\Dependencies\freeglut\include;..\..\Dependencies\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

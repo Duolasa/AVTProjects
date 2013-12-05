@@ -14,6 +14,7 @@ class TangramManipulator
 public:
   GLuint VaoId;
   TangramPiece pieces[9];
+  TangramPiece mirror;
   float frame[9];
   MatrixManip matrixGenerator;
 

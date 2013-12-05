@@ -51,29 +51,22 @@ static void validateProgram(GLuint program) {
     }
 }
 
+/////////////////////////////////////////////////////////////////////// SHADER
 
-engine::Shader::Shader(){ }
+engine::Shader::Shader(){}
 
-engine::Shader::~Shader(){
-	glUseProgram(0);
-	glDetachShader(ProgramId, VertexShaderId);
-	glDetachShader(ProgramId, FragmentShaderId);
-
-	glDeleteShader(FragmentShaderId);
-	glDeleteShader(VertexShaderId);
-	glDeleteProgram(ProgramId);
+engine::Shader::Shader(GLenum type, const char *File){ 
+	shaderId = loadShader(type, File);
+	shaderType = type;
 }
 
-void engine::Shader::loadShaders(const char *vsFile, const char *fsFile){
-	engine::Shader::loadVertexShader(vsFile);
-	engine::Shader::loadFragmentShader(fsFile);
-
-	setProgram();
+engine::Shader::~Shader(){
+	glDeleteShader(shaderId);
 }
 
 GLuint engine::Shader::loadShader(GLenum type, const char *File){
 
-	GLuint shaderId = glCreateShader(type); 
+	GLuint shader = glCreateShader(type); 
 
 	std::string sText = textFileRead(File);
 	const char *shaderText = sText.c_str();
@@ -87,55 +80,100 @@ GLuint engine::Shader::loadShader(GLenum type, const char *File){
 		return shaderId;
 	}
 
-	glShaderSource(shaderId, 1, &shaderText, 0); 
-	glCompileShader(shaderId); 
-	validateShader(shaderId, File);
-
-	return shaderId;
+	glShaderSource(shader, 1, &shaderText, 0); 
+	glCompileShader(shader); 
+	validateShader(shader, File);
+	return shader;
 }
 
 void engine::Shader::loadVertexShader(const char *vsFile){
-	engine::Shader::VertexShaderId = loadShader(GL_VERTEX_SHADER, vsFile);
+	shaderId = loadShader(GL_VERTEX_SHADER, vsFile);
+	shaderType = GL_VERTEX_SHADER;
 }
 
 void engine::Shader::loadFragmentShader(const char *fsFile){
-	engine::Shader::FragmentShaderId = loadShader(GL_FRAGMENT_SHADER, fsFile);
+	shaderId = loadShader(GL_FRAGMENT_SHADER, fsFile);
+	shaderType = GL_FRAGMENT_SHADER;
 }
 
-void engine::Shader::bindProg(){
+unsigned int engine::Shader::id(){
+	return shaderId;
+}
+
+GLuint engine::Shader::getshaderType (){
+	return shaderType;
+}
+
+/////////////////////////////////////////////////////////////////////// PROGRAM SHADER
+
+engine::ShaderProgram::ShaderProgram(){}
+
+engine::ShaderProgram::ShaderProgram(engine::Shader vertex, engine::Shader fragment){
+	vertexShader = vertex;
+	fragmentShader = fragment;
+
+	setProgram();
+}
+
+engine::ShaderProgram::~ShaderProgram(){
+	glUseProgram(0);
+	glDetachShader(ProgramId, vertexShader.id());
+	glDetachShader(ProgramId, fragmentShader.id());
+
+	vertexShader.~Shader();
+	fragmentShader.~Shader();
+	glDeleteProgram(ProgramId);
+}
+
+void engine::ShaderProgram::loadShaders(const char *vsFile, const char *fsFile){
+	vertexShader.loadVertexShader(vsFile);
+	fragmentShader.loadFragmentShader(fsFile);
+
+	setProgram();
+}
+
+void engine::ShaderProgram::loadShaders(engine::Shader vertex, engine::Shader fragment){
+	vertexShader = vertex;
+	fragmentShader = fragment;
+
+	setProgram();
+}
+
+void engine::ShaderProgram::bindProg(){
 	glUseProgram(ProgramId);
 }
 
-void engine::Shader::unbindProg(){
+void engine::ShaderProgram::unbindProg(){
 	glUseProgram(0);
 }
 
-void engine::Shader::bindAttribute(GLuint index, GLchar *name){
+void engine::ShaderProgram::bindAttribute(GLuint index, GLchar *name){
 	glBindAttribLocation(ProgramId, index, name);
 }
 
-GLint engine::Shader::getUniformLocation(const GLchar* uniform_name){
+GLint engine::ShaderProgram::getUniformLocation(const GLchar* uniform_name){
 	return glGetUniformLocation(ProgramId, uniform_name);
 }
 
-GLint engine::Shader::getUniformBlockIndex(const GLchar *name, const GLuint UBO){
+GLint engine::ShaderProgram::getUniformBlockIndex(const GLchar *name, const GLuint UBO){
 	GLint UboId = glGetUniformBlockIndex(ProgramId, name);
 	glUniformBlockBinding(ProgramId, UboId, UBO);
 	return UboId;
 }
 
-void engine::Shader::linkProg(){
+void engine::ShaderProgram::linkProg(){
 	glLinkProgram(ProgramId);
 	validateProgram(ProgramId);
 	
 }
 
-unsigned int engine::Shader::id(){
+unsigned int engine::ShaderProgram::id(){
 	return ProgramId;
 }
 
-void engine::Shader::setProgram(){
+void engine::ShaderProgram::setProgram(){
 	ProgramId = glCreateProgram();
-    glAttachShader(ProgramId, VertexShaderId); 
-    glAttachShader(ProgramId, FragmentShaderId); 
+	glAttachShader(ProgramId, vertexShader.id()); 
+	glAttachShader(ProgramId, fragmentShader.id()); 
+	
 }

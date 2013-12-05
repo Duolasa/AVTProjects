@@ -11,36 +11,51 @@
 
 namespace engine {
 
+
+	// type == GL_VERTEX_SHADER || GL_FRAGMENT_SHADER
 	class Shader {
 
 	private:
-		GLuint VertexShaderId;
-		GLuint FragmentShaderId;
-		GLuint ProgramId;
+		GLuint shaderId;
+		GLenum shaderType;
 
 		GLuint loadShader(GLenum type, const char *File);
-		//static void validateProgram(GLuint program);
-		//static void validateShader(GLuint shader, const char* file = 0);
-		//static std::string textFileRead(const char *fileName);
 
 	public:
 		Shader();
+		Shader(GLenum type, const char *File);
 		~Shader();
-		void loadShaders(const char *vsFile, const char *fsFile);
 		void loadVertexShader(const char *vsFile);
 		void loadFragmentShader(const char *fsFile);
-		void bindProg();
-		void unbindProg(); 
+		unsigned int id();
+		GLuint getshaderType ();
+
+	};
+
+	class ShaderProgram {
+	private:
+		Shader vertexShader;
+		Shader fragmentShader;
+		GLuint ProgramId;
+
+	public:
+		ShaderProgram();
+		ShaderProgram(Shader vertex, Shader fragment);
+		~ShaderProgram();
+		void loadShaders(const char *vsFile, const char *fsFile);
+		void loadShaders(Shader vertex, Shader fragment);
 		void bindAttribute(GLuint index, GLchar *name);
 		GLint getUniformLocation(const GLchar* uniform_name);
 		GLint getUniformBlockIndex(const GLchar *name, const GLuint UBO);
+		void bindProg();
+		void unbindProg();
 		void linkProg();
 		void setProgram();
 		unsigned int id();
 	};
 
-	typedef ListManager<Shader> SHADER_LIST;
-	ListManager<Shader>* ListManager<Shader>::_instance = 0;
+	typedef ListManager<ShaderProgram> SHADER_PROGRAM_LIST;
+	ListManager<ShaderProgram>* ListManager<ShaderProgram>::_instance = 0;
 }
 
 #endif //SHADER_H

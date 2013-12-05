@@ -52,6 +52,7 @@
 #include "TangramManipulator.h"
 #include "ShaderManipulator.h"
 #include "Camera.h"
+#include "Mirror.h"
 
 #define CAPTION "Hello New World"
 #define radiansToDegrees 57.2957795131f
@@ -70,6 +71,7 @@ int mouseX, mouseY, elapsedTime;
 static TangramManipulator* tangramManipulator = new TangramManipulator;
 static ShaderManipulator* shaderManipulator = new ShaderManipulator;
 MatrixManip* matrixManipulator = new MatrixManip();
+Mirror mirror = Mirror();
 int lastMovedPiece = 0;
 
 static Camera* camera = new Camera(matrixManipulator->GetView(eye, center, up),
@@ -446,7 +448,11 @@ int main(int argc, char* argv[])
 {
 	init(argc, argv);
 
+  mirror.CreateFrameBuffer(220, 240);
+  mirror.Unbind();
+
 	glutMainLoop();	
+
 	exit(EXIT_SUCCESS);
 }
 

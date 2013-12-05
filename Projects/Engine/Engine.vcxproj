@@ -81,7 +81,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Engine.h" />
+    <ClInclude Include="Source\Entity.h" />
     <ClInclude Include="Source\ListManager.h" />
+    <ClInclude Include="Source\Manager.h" />
     <ClInclude Include="Source\Matrix.h" />
     <ClInclude Include="Source\Node.h" />
     <ClInclude Include="Source\OpenGLErrors.h" />
@@ -90,6 +92,8 @@
     <ClInclude Include="Source\Vector.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Entity.cpp" />
+    <ClCompile Include="Source\Manager.cpp" />
     <ClCompile Include="Source\Matrix.cpp" />
     <ClCompile Include="Source\Node.cpp" />
     <ClCompile Include="Source\Quaternion.cpp" />

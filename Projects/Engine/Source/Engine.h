@@ -4,6 +4,8 @@
 #include "Vector.h"
 #include "Matrix.h"
 #include "Quaternion.h"
+
+#include "Entity.h"
 #include "Node.h"
 
 #include "OpenGLErrors.h"
