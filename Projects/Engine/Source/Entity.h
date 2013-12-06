@@ -6,10 +6,12 @@
 
 #include "Shader.h"
 #include "Matrix.h"
+#include "Vector.h"
+#include "Quaternion.h"
 
 
 namespace engine {
-	
+
 #define VERTICES 0
 #define COLORS 1
 
@@ -17,29 +19,34 @@ namespace engine {
 		GLfloat XYZW[4];
 		GLfloat RGBA[4];
 	} Vertex;
-	
+
 	class Entity {
-			
-		private:
-			
-			const Vertex * verts;
-			GLuint UBO_BP;
-			GLint size;
-			Shader shader;
 
-		public:
-			Entity();
-			~Entity();
-			GLuint VaoId, VboId[2];
-			
-			template<size_t N>
-			void createBufferObject(const Vertex (&Vertices)[N],const GLuint UBO){
-				
-				size = N;
+	private:
 
-				UBO_BP = UBO;
+		const Vertex * verts;
+		GLuint UBO_BP;
+		GLint size;
+		Shader shader;
+		Mat4 transfM;
+		Vec3 translation;
+		Quaternion rotation;
 
-			
+
+	public:
+		Entity();
+		Entity(Vec3 pos, Quaternion q);
+		~Entity();
+		GLuint VaoId, VboId[2];
+
+		template<size_t N>
+		void createBufferObject(const Vertex (&Vertices)[N],const GLuint UBO){
+
+			size = N;
+
+			UBO_BP = UBO;
+
+
 			glGenVertexArrays(1, &VaoId);
 			glBindVertexArray(VaoId);
 
@@ -61,19 +68,21 @@ namespace engine {
 			glBindBuffer(GL_UNIFORM_BUFFER, 0);
 			glDisableVertexAttribArray(VERTICES);
 			glDisableVertexAttribArray(COLORS);
-			
-				//checkOpenGLError("ERROR: Could not create VAOs and VBOs.");
-				//createBufferObject();
-			}
 
-			void destroyBufferObject();
-			void draw(ShaderProgram* progShader, GLint UniformId, Mat4 m);
-			GLuint getVboId();
+			//checkOpenGLError("ERROR: Could not create VAOs and VBOs.");
+			//createBufferObject();
+		}
 
-		};
+		void destroyBufferObject();
+		void draw(ShaderProgram* progShader, GLint UniformId);
+		GLuint getVboId();
+		void addTranslation(Vec3 newTranslation);
+		void addRotation(Quaternion newRotation);
 
-		typedef ListManager<Entity> ENTITY_LIST;
-		ListManager<Entity>* ListManager<Entity>::_instance = 0;
+	};
+
+	typedef ListManager<Entity> ENTITY_LIST;
+	ListManager<Entity>* ListManager<Entity>::_instance = 0;
 }
 
 #endif //ENTITY_H

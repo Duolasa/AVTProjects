@@ -15,6 +15,8 @@ public:
   GLuint VaoId;
   TangramPiece pieces[9];
   TangramPiece mirror;
+  TangramPiece mirror2;
+
   float frame[9];
   MatrixManip matrixGenerator;
 
@@ -25,6 +27,8 @@ public:
   void FillWithPresetPosition(int pieceID);
   void DrawPieces(GLint UniformId);
   void DrawMirror(GLint UniformId);
+  void DrawMirror2(GLint UniformId);
+
   TangramManipulator();
   ~TangramManipulator();
 };

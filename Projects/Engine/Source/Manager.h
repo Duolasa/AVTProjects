@@ -16,9 +16,10 @@ namespace engine {
 		Entity strangePiece1E;
 		Entity strangePiece2E;
 		Entity cornerPieceE;
+		Entity mirror;
 
 	public:
-		Manager(){}
+		Manager(){} 
 		~Manager(){}
 
 		void createPieces(GLuint UBO){
@@ -29,7 +30,7 @@ namespace engine {
 			strangePiece1E.createBufferObject(strangePiece1, UBO);
 			strangePiece2E.createBufferObject(strangePiece2, UBO);
 			cornerPieceE.createBufferObject(cornerPiece, UBO);
-
+			mirror.createBufferObject(Plane, UBO);
 		}
 		void destroyPieces(){
 			BigLPieceE.destroyBufferObject();

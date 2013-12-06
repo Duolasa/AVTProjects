@@ -206,24 +206,61 @@ typedef GLfloat Matrix[16];
 
 void drawScene()
 {
+	/**/
+
+  //INFINITE
   glUseProgram(ProgramId);
 
   mirror.Bind();
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   tangramManipulator->DrawPieces(ModelMatrixId);
 
-
   mirror.Unbind();
 
+
+
   tangramManipulator->DrawPieces(ModelMatrixId);
-  
+
+  mirror.Bind();
+
   glUseProgram(ProgramTextureId);
    tangramManipulator->DrawMirror(ModelMatrixId);
   
+   mirror.Unbind();
+   tangramManipulator->DrawMirror(ModelMatrixId);
+
+   tangramManipulator->DrawMirror2(ModelMatrixId);
+
+
+
+
 	glUseProgram(0);
 	glBindVertexArray(0);
 
-  
+  /** /
+
+  //SINGLE
+
+	glUseProgram(ProgramId);
+
+	mirror.Bind();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	tangramManipulator->DrawPieces(ModelMatrixId);
+
+	mirror.Unbind();
+
+	tangramManipulator->DrawPieces(ModelMatrixId);
+
+	
+
+	glUseProgram(ProgramTextureId);
+
+	tangramManipulator->DrawMirror(ModelMatrixId);
+
+
+	glUseProgram(0);
+	glBindVertexArray(0);
+	/**/
   checkOpenGLError("ERROR: Could not draw scene.");
 }
 
@@ -486,7 +523,6 @@ int main(int argc, char* argv[])
 	init(argc, argv);
 
   mirror.CreateFrameBuffer(640, 480);
-  mirror.CreateTexture(640, 480);
   mirror.AddDepthBuffer();
   mirror.Unbind();
 

@@ -124,8 +124,8 @@ void engine::ShaderProgram::destroyShaderProgram(){
 	glUseProgram(0);
 	glDetachShader(ProgramId, vertexShader.getId());
 	glDetachShader(ProgramId, fragmentShader.getId());
-	glDeleteShader(fragmentShader.getId());
-	glDeleteShader(vertexShader.getId());
+	//glDeleteShader(fragmentShader.getId());
+	//glDeleteShader(vertexShader.getId());
 	glDeleteProgram(ProgramId);
 }
 

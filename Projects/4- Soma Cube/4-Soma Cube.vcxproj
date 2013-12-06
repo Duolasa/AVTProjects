@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\assignment_4.cpp" />
+    <ClCompile Include="Source\Mirror.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Engine\Engine.vcxproj">
@@ -29,7 +30,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Manager.h" />
-    <ClInclude Include="Source\Pieces.h" />
+    <ClInclude Include="Source\Mirror.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{85982A9D-44C1-4FCF-904A-CA10CFB559CF}</ProjectGuid>

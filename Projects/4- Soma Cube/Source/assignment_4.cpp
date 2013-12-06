@@ -29,7 +29,7 @@
 
 #include "Manager.h"
 #include "Pieces.h"
-
+#include "Mirror.h"
 using namespace engine;
 
 #define CAPTION "Hello Blank World"
@@ -45,7 +45,6 @@ bool hasReshape = false;
 GLint UboId, UniformId;
 const GLuint UBO_BP = 0;
 
-
 int LastMousePositionX;
 int LastMousePositionY;
 float RotationAngleY = 0.0f;
@@ -53,8 +52,16 @@ float RotationAngleX = 0.0f;
 float CameraScale = 1;
 float smoothScale = 1.01f;
 
+Quaternion editRotation;
+Vec3 editTranslation;
+
+bool _x = true, _y = false, _z = false;
+std::string filename;
+int selectedPiece = 1;
 
 ShaderProgram *normalShader = new ShaderProgram();
+
+Mirror mirror1 = Mirror();
 /////////////////////////////////////////////////////////////////////// SHADERs
 
 
@@ -75,27 +82,8 @@ void createShaderProgram()
 
 void destroyShaderProgram()
 {
-	//normalShader.destroyShaderProgram();
+	normalShader->destroyShaderProgram();
 
-	glUseProgram(0);
-
-	//std::cerr << glIsShader(normalShader.vertexShader.id()) << std::endl;
-
-	unsigned int  vs = normalShader->vertexShader.getId();
-	unsigned int  fs = normalShader->fragmentShader.getId();
-	unsigned int  ps = normalShader->getId();
-	glDetachShader(ps, vs);
-	glDetachShader(ps, fs);
-	
-	
-	//std::cerr << normalShader.vertexShader.id() << std::endl;
-	
-	//glDeleteShader(fs);
-	//normalShader->fragmentShader.delShader();
-	checkOpenGLError("ERROR: ...");
-	//glDeleteShader(vs);
-	glDeleteProgram(ps);
-	
 	checkOpenGLError("ERROR: Could not destroy shaders.");
 }
 
@@ -107,58 +95,90 @@ Manager manager;
 void createBufferObjects(){
 
 	manager.createPieces(UBO_BP);
-	entity.createBufferObject(PieceCube, UBO_BP);
+	//entity.createBufferObject(PieceCube, UBO_BP);
 
 	checkOpenGLError("ERROR: Could not create VAOs VBOs");
 }
 
 void destroyBufferObject(){
-	
-	entity.destroyBufferObject();
+
+	//entity.destroyBufferObject();
 	manager.destroyPieces();
 	checkOpenGLError("ERROR: Could not destroy VAOs VBOs");
 }
 
-
-
-
-
-
-Quaternion qx = Quaternion(0.0f, Z_AXIS);
-
 void draw(){
-	/**/
-	Mat4 projectionMatrix = GetPerspProjection(30,640/480.0f,1,15);
-	Mat4 viewMatrixx = GetView(Vec3(0,0,10),Vec3(0,0,0),Vec3(0,1,0));
 
-	
-	Quaternion qX = Quaternion(RotationAngleY*.5f, Y_AXIS);
-	Quaternion qY = Quaternion(RotationAngleX*.5f, X_AXIS);
+	manager.setCamera(RotationAngleX, RotationAngleY);
 	RotationAngleY = RotationAngleX = 0;
 
-	Quaternion qv = qX * qY;
-
-	qx = qv * qx;
-	//qx = qMultiply(qZ,qY);
-	//aux = rotY * rotZ;
-
-	//qPrint("qx", qx);
-	Mat4 m = qx.getMatrix();
-	//m.Transpose();
-	viewMatrixx =   m * viewMatrixx ;
-
-	viewMatrixx = GetScale(CameraScale) * viewMatrixx;
-
-	glBindBuffer(GL_UNIFORM_BUFFER, entity.getVboId());
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Mat4), viewMatrixx.matrix);
-	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(Mat4), sizeof(Mat4), projectionMatrix.matrix);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-	/**/
-	
-	//entity.draw(normalShader,UniformId,GetIdentity().matrix);
-	manager.drawPieces(normalShader, UniformId);
+	manager.drawPieces(normalShader, UniformId, selectedPiece, editTranslation, editRotation);
+	editTranslation = Vec3(0.0f);
+	editRotation = Quaternion(0.0f,X_AXIS);
 
 	checkOpenGLError("ERROR: Could not draw");
+}
+/////////////////////////////////////////////////////////////////////// KEYS
+
+void processNormalKeys(unsigned char key, int x, int y) {
+
+	Quaternion qx = Quaternion(90.0f, X_AXIS); 
+	Quaternion qxn = Quaternion(-90.0f, X_AXIS);
+
+	Quaternion qz = Quaternion(90.0f, Z_AXIS);
+	Quaternion qzn = Quaternion(-90.0f, Z_AXIS);
+
+	Quaternion qy = Quaternion(90.0f, Y_AXIS);
+	Quaternion qyn = Quaternion(-90.0f, Y_AXIS);
+
+	if (key == 'z') { _z = true; _y = false; _x = false;} //changes z axis/coords
+	if (key == 'x') { _z = false; _y = false; _x = true;} //changes x axis/coords
+	if (key == 'c') { _z = false; _y = true; _x = false;} //changes y axis/coords
+
+	if (key == 'a' && _z) editTranslation.x = 1.0f;
+	if (key == 'd' && _z) editTranslation.x = - 1.0;
+	if (key == 'w' && _z) editTranslation.y =  1.0;
+	if (key == 's' && _z) editTranslation.y = - 1.0;
+	if (key == 'q' && _z) editRotation = qz;
+	if (key == 'e' && _z) editRotation = qzn;
+
+	if (key == 'a' && _y) editTranslation.x =  1.0;
+	if (key == 'd' && _y) editTranslation.x = - 1.0;
+	if (key == 'w' && _y) editTranslation.z =  1.0;
+	if (key == 's' && _y) editTranslation.z = - 1.0;
+	if (key == 'q' && _y) editRotation = qy;
+	if (key == 'e' && _y) editRotation = qyn;
+
+	if (key == 'a' && _x) editTranslation.y =  1.0;
+	if (key == 'd' && _x) editTranslation.y = - 1.0;
+	if (key == 'w' && _x) editTranslation.z =  1.0;
+	if (key == 's' && _x) editTranslation.z = - 1.0;
+	if (key == 'q' && _x) editRotation = qx;
+	if (key == 'e' && _x) editRotation = qxn;
+
+
+	if (key == '1' ) selectedPiece = 1;
+	if (key == '2' ) selectedPiece = 2;
+	if (key == '3' ) selectedPiece = 3;
+	if (key == '4' ) selectedPiece = 4;
+	if (key == '5' ) selectedPiece = 5;
+	if (key == '6' ) selectedPiece = 6;
+	if (key == '7' ) selectedPiece = 7;
+
+	if (key == 'n'){
+		std::cout << "Please enter filename to save: ";
+		std::cin >> filename;
+		//manager.saveCurrent(filename);
+		std::cout << "Filename saved: " << "xml/" << filename << ".xml" << std::endl;
+	}
+
+	if (key == 'm'){
+		std::cout << "Please enter filename to load: ";
+		std::cin >> filename;
+		//manager.loadCurrent(filename);
+		std::cout << "Filename loaded: " << "xml/" << filename << ".xml" << std::endl;
+	}
+
 }
 
 /////////////////////////////////////////////////////////////////////// CALLBACKS
@@ -171,7 +191,7 @@ void cleanup()
 
 void frameTimer(int value){
 	glutPostRedisplay();
-	
+
 }
 
 void display()
@@ -206,41 +226,39 @@ void timer(int value)
 	std::string s = oss.str();
 	glutSetWindow(WindowHandle);
 	glutSetWindowTitle(s.c_str());
-    FrameCount = 0;
-    glutTimerFunc(1000, timer, 0);
-	
+	FrameCount = 0;
+	glutTimerFunc(1000, timer, 0);
+
 }
 
 ///////////////////////////////////////////////////////////////////////
 
 void test(){
 	//Entity a = Entity(SmallLPiece,0);
-	
+
 }
 
 void processMouse(int button, int state, int x, int y){
+	LastMousePositionX = x;
+	LastMousePositionY = y;		
 
-		LastMousePositionX = x;
-		LastMousePositionY = y;
+	if (button == 3) // scroll up
+	{
+		CameraScale *= smoothScale;
+	}
 
-	
-		if (button == 3) // scroll up
-		{
-			CameraScale *= smoothScale;
-		}
-
-		if (button == 4){ //scroll down
-			CameraScale /= smoothScale;
-		}
+	if (button == 4){ //scroll down
+		CameraScale /= smoothScale;
+	}
 
 }
 
 void processMouseMove(int x, int y){
-		RotationAngleY += (x - LastMousePositionX);
-		LastMousePositionX = x;
+	RotationAngleY += (x - LastMousePositionX);
+	LastMousePositionX = x;
 
-		RotationAngleX += (y - LastMousePositionY);
-		LastMousePositionY = y;
+	RotationAngleX += (y - LastMousePositionY);
+	LastMousePositionY = y;
 }
 
 /////////////////////////////////////////////////////////////////////// SETUP
@@ -254,6 +272,8 @@ void setupCallbacks()
 
 	glutMouseFunc(processMouse);
 	glutMotionFunc(processMouseMove);
+
+	glutKeyboardFunc(processNormalKeys);
 
 	glutTimerFunc(0,timer,0);
 	glutTimerFunc(0, frameTimer, 0);
@@ -290,7 +310,7 @@ void setupGLUT(int argc, char* argv[])
 	glutInitContextProfile(GLUT_CORE_PROFILE);
 
 	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE,GLUT_ACTION_GLUTMAINLOOP_RETURNS);
-	
+
 	glutInitWindowSize(WinX, WinY);
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 	WindowHandle = glutCreateWindow(CAPTION);

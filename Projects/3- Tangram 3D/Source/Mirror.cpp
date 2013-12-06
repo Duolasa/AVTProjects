@@ -1,5 +1,5 @@
 #include "Mirror.h"
-
+#include <iostream>
 
 Mirror::Mirror()
 {
@@ -10,8 +10,12 @@ void Mirror::CreateFrameBuffer(int w, int h) {
 
   glGenFramebuffers(1, &FBOid);
   glBindFramebuffer(GL_FRAMEBUFFER, FBOid);
+  CreateTexture(w, h);
   width = w;
   height = h;
+
+  if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	  std::cout << "Failed to create framebuffer: " << glCheckFramebufferStatus(GL_FRAMEBUFFER) <<  std::endl;
 }
 
 void Mirror::CreateTexture(int w, int h) {  //creates an empty texture
@@ -49,6 +53,9 @@ void Mirror::AddDepthBuffer(){
   glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
 
   glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, DRBid);
+
+  if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	  std::cout << "Failed to create depth buffer: " << glCheckFramebufferStatus(GL_FRAMEBUFFER) << std::endl;
   
 }
 void Mirror::Bind(){
