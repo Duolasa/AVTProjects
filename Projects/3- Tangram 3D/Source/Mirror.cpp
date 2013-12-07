@@ -5,6 +5,30 @@ Mirror::Mirror()
 {
 }
 
+
+bool Mirror::isOpenGLError() {
+  bool isError = false;
+  GLenum errCode;
+  const GLubyte *errString;
+  while ((errCode = glGetError()) != GL_NO_ERROR) {
+    isError = true;
+    errString = gluErrorString(errCode);
+    std::cerr << "OpenGL ERROR [" << errString << "]." << std::endl;
+  }
+  return isError;
+}
+
+void Mirror::checkOpenGLError()
+{
+  if (isOpenGLError()) {
+    std::cerr << "error" << std::endl;
+    system("pause");
+    exit(EXIT_FAILURE);
+  }
+}
+
+
+
 void Mirror::CreateFrameBuffer(int w, int h) {
 
 
@@ -13,6 +37,7 @@ void Mirror::CreateFrameBuffer(int w, int h) {
   CreateTexture(w, h);
   width = w;
   height = h;
+
 
   if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	  std::cout << "Failed to create framebuffer: " << glCheckFramebufferStatus(GL_FRAMEBUFFER) <<  std::endl;
@@ -39,7 +64,6 @@ void Mirror::CreateTexture(int w, int h) {  //creates an empty texture
 
  
 
-
  /* glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
   glGenSamplers(1, &SamplerId);
   glGenerateMipmap(GL_TEXTURE_2D);*/
@@ -54,17 +78,22 @@ void Mirror::AddDepthBuffer(){
 
   glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, DRBid);
 
+  
+
   if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	  std::cout << "Failed to create depth buffer: " << glCheckFramebufferStatus(GL_FRAMEBUFFER) << std::endl;
   
 }
 void Mirror::Bind(){
+
   glBindRenderbuffer(GL_RENDERBUFFER, DRBid);
+
   glBindFramebuffer(GL_FRAMEBUFFER, FBOid);
+
   glActiveTexture(GL_TEXTURE0 ); 
+
   glBindTexture(GL_TEXTURE_2D, Textureid);
 
-  glUniform1i(gsamplerId, 0);
 
 }
 void Mirror::Unbind(){

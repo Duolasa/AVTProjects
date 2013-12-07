@@ -28,6 +28,8 @@ public:
 	  void AddDepthBuffer();
 	  void Bind();
 	  void Unbind();
+    bool isOpenGLError();   
+    void checkOpenGLError();
 	  ~Mirror();
 };
 

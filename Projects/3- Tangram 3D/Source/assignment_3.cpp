@@ -206,7 +206,7 @@ typedef GLfloat Matrix[16];
 
 void drawScene()
 {
-	/**/
+	/** /
 
   //INFINITE
   glUseProgram(ProgramId);
@@ -224,7 +224,9 @@ void drawScene()
   mirror.Bind();
 
   glUseProgram(ProgramTextureId);
-   tangramManipulator->DrawMirror(ModelMatrixId);
+  glUniform1i(gsamplerId, 0);
+
+  tangramManipulator->DrawMirror(ModelMatrixId);
   
    mirror.Unbind();
    tangramManipulator->DrawMirror(ModelMatrixId);
@@ -237,7 +239,7 @@ void drawScene()
 	glUseProgram(0);
 	glBindVertexArray(0);
 
-  /** /
+  /**/
 
   //SINGLE
 
@@ -245,15 +247,17 @@ void drawScene()
 
 	mirror.Bind();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	tangramManipulator->DrawPieces(ModelMatrixId);
 
 	mirror.Unbind();
 
 	tangramManipulator->DrawPieces(ModelMatrixId);
 
-	
 
 	glUseProgram(ProgramTextureId);
+
+  glUniform1i(gsamplerId, 0);
 
 	tangramManipulator->DrawMirror(ModelMatrixId);
 
