@@ -371,10 +371,10 @@ void TangramManipulator::CreatePieces(){
   }
 
 
-  mirror.vertices.push_back({ { -2.0f, -4.0f, 0.0f, 1.0f }, { 1.0f, 0.0f, 1.0f, 1.0f } });
-  mirror.vertices.push_back({ { -2.0f, -4.0f, 3.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } });
-  mirror.vertices.push_back({ { 2.0f, -4.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } });
-  mirror.vertices.push_back({ { 2.0f, -4.0f, 3.0f, 1.0f }, { 0.0f, 1.0f, 1.0f, 1.0f } });
+  mirror.vertices.push_back({ { -2.0f, -3.0f, -1.5f, 1.0f }, { 1.0f, 0.0f, 1.0f, 1.0f } });
+  mirror.vertices.push_back({ { -2.0f, -3.0f, 1.5f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } });
+  mirror.vertices.push_back({ { 2.0f, -3.0f, -1.5f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } });
+  mirror.vertices.push_back({ { 2.0f, -3.0f, 1.5f, 1.0f }, { 0.0f, 1.0f, 1.0f, 1.0f } });
   mirror.indices.push_back(0);
   mirror.indices.push_back(1);
   mirror.indices.push_back(2);

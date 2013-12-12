@@ -76,8 +76,8 @@ Mirror mirror = Mirror();
 int lastMovedPiece = 0;
 
 static Camera* camera = new Camera(matrixManipulator->GetView(eye, center, up),
-                                     matrixManipulator->GetOrthoProjection(2,-2,-2,2,1,20),
-                                     matrixManipulator->GetPerspProjection(30, 640.0f / 480.0f, 1, 20));
+                                     matrixManipulator->GetOrthoProjection(2,-2,-2,2,0,20),
+                                     matrixManipulator->GetPerspProjection(30, 640.0f / 480.0f, 0, 20));
 
 GLuint VertexShaderId, FragmentShaderId, ProgramId, SharedMatricesBuffer, TextureShaderId, ProgramTextureId;
 GLint ModelMatrixId, SilhouetteId, SharedMatricesId, gsamplerId;
@@ -244,7 +244,35 @@ void drawScene()
 
   //SINGLE
 
+
+
 	glUseProgram(ProgramId);
+	/**/
+	GLfloat *aux;
+	float theta = camera->theta;
+	float phi = camera->phi ;
+	float radius = camera->radius;
+
+	float originalPhi = phi;
+	float originalTheta = theta;	
+
+
+	float newEye[] = { 0.0f, -3.0f, 0.10f };
+	float newCenter[] = { - radius*sinf(theta) * cosf(phi),
+		radius*sinf(theta) * sinf(phi),
+		 - (radius * cosf(theta)) };
+		 
+	aux = matrixManipulator->GetView(newEye, newCenter, camera->up);
+
+
+	free(camera->viewMatrix);
+	camera->viewMatrix = aux;
+	camera->ChangeViewMatrix();
+
+	glutPostRedisplay();
+
+
+	/**/
 
 	mirror.Bind();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -252,6 +280,37 @@ void drawScene()
 	tangramManipulator->DrawPieces(ModelMatrixId);
 
 	mirror.Unbind();
+
+
+	/**/
+
+	 theta = camera->theta;
+	 phi = camera->phi;
+	 radius = camera->radius;
+
+
+	 phi = originalPhi;
+
+
+	camera->theta = theta;
+	camera->phi = phi;
+
+	float newEye2[] = { radius*sinf(theta) * cosf(phi),
+		radius*sinf(theta) * sinf(phi),
+		radius * cosf(theta) };
+	float newCenter2[] = { 0.0f, 0.0f, 1.0f };
+
+
+	aux = matrixManipulator->GetView(newEye2, newCenter2, camera->up);
+
+	free(camera->viewMatrix);
+	camera->viewMatrix = aux;
+	camera->ChangeViewMatrix();
+
+	glutPostRedisplay();
+
+
+	/**/
 
 	tangramManipulator->DrawPieces(ModelMatrixId);
 
@@ -265,7 +324,7 @@ void drawScene()
 
 	glUseProgram(0);
 	glBindVertexArray(0);
-	/**/
+	
   checkOpenGLError("ERROR: Could not draw scene.");
 }
 
@@ -349,21 +408,6 @@ void moveCamera(int x, int y){
   float theta = camera->theta + yMovement;
   float phi = camera->phi + xMovement;
   float radius = camera->radius;
-  /*
-  if (theta > PI * 2){
-    theta -= PI * 2;
-  }
-  else if (theta < 0){
-    theta += PI * 2;
-  }
-
-  if (phi > PI * 2){
-    phi -=  PI * 2;
-  }
-  else if (phi < 0){
-    phi += PI * 2;
-  }
-  */
   
   if (theta > PI - 0.1f){
 	  theta = PI - 0.1f;
@@ -400,8 +444,8 @@ void moveCamera(int x, int y){
 
 void screenShot(){
   std::cout << "ScreenShot" << std::endl;
-  // Make the BYTE array, factor of 3 because it's RBG.
-  BYTE* pixels = new BYTE[3 * WinX * WinY];
+
+  unsigned char* pixels = new unsigned char[3 * WinX * WinY];
 
   glReadPixels(0, 0, WinX, WinY, GL_BGR, GL_UNSIGNED_BYTE, pixels);
 

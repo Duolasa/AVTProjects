@@ -5,7 +5,7 @@ out vec4 out_Color;
 uniform sampler2D gsampler;
 void main(void)
 { 
-	vec2 textCoor = vec2(ex_Color.x, ex_Color.y);
+	vec2 textCoor = vec2(ex_Color.x * -1, ex_Color.y);
  	out_Color = texture(gsampler, textCoor) - vec4(0.1,0.1,0.1,0.1) ;
 //	out_Color = vec4(textCoor, ex_Color.z,ex_Color.w);
 }
