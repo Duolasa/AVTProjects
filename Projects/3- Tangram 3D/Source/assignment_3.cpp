@@ -403,10 +403,11 @@ void screenShot(){
   // Make the BYTE array, factor of 3 because it's RBG.
   BYTE* pixels = new BYTE[3 * WinX * WinY];
 
-  glReadPixels(0, 0, WinX, WinY, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+  glReadPixels(0, 0, WinX, WinY, GL_BGR, GL_UNSIGNED_BYTE, pixels);
 
   // Convert to FreeImage format & save to file
-  FIBITMAP* image = FreeImage_ConvertFromRawBits(pixels, WinX, WinY, 3 * WinX, 24, 0x0000FF, 0xFF0000, 0x00FF00, false);
+  FIBITMAP* image = FreeImage_ConvertFromRawBits(pixels, WinX, WinY, 3 * WinX, 24, 0xFF0000, 0x00FF00, 0x0000FF, false);  //RGB
+
   FreeImage_Save(FIF_BMP, image, "../ScreenShots/3DTangram.bmp", 0);
 
   // Free resources
