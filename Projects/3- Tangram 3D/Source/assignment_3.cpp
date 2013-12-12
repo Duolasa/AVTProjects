@@ -53,6 +53,7 @@
 #include "ShaderManipulator.h"
 #include "Camera.h"
 #include "Mirror.h"
+#include "FreeImage.h"
 
 #define CAPTION "Hello New World"
 #define radiansToDegrees 57.2957795131f
@@ -397,6 +398,24 @@ void moveCamera(int x, int y){
 
 }
 
+void screenShot(){
+  std::cout << "ScreenShot" << std::endl;
+  // Make the BYTE array, factor of 3 because it's RBG.
+  BYTE* pixels = new BYTE[3 * WinX * WinY];
+
+  glReadPixels(0, 0, WinX, WinY, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+
+  // Convert to FreeImage format & save to file
+  FIBITMAP* image = FreeImage_ConvertFromRawBits(pixels, WinX, WinY, 3 * WinX, 24, 0x0000FF, 0xFF0000, 0x00FF00, false);
+  FreeImage_Save(FIF_BMP, image, "../ScreenShots/3DTangram.bmp", 0);
+
+  // Free resources
+  FreeImage_Unload(image);
+  delete [] pixels;
+
+}
+
+
 
 void processKeys(unsigned char key, int x, int y){
 
@@ -414,6 +433,10 @@ void processKeys(unsigned char key, int x, int y){
       tangramManipulator->FillWithPresetPosition( lastMovedPiece++);
       
       break;
+
+  case 's':
+    screenShot();
+    break;
 
 
 
