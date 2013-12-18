@@ -169,7 +169,7 @@ engine::Vec3 engine::cross(const engine::Vec3 &a, const engine::Vec3 &b){ // a x
 }
 
 std::ostream &engine::operator<<(std::ostream &s, const engine::Vec3 &v){
-	s << "[ " << v.x << " " << v.y << " " << v.z << "]";
+	s << "[ " << v.x << " " << v.y << " " << v.z << " ]";
 	return s;
 }
 
@@ -358,7 +358,7 @@ void engine::normalise(Vec4 &v){									   // v = norm(v)
 }
 
 std::ostream &engine::operator<<(std::ostream &s, const engine::Vec4 &v){
-	s << "[ " << v.x << " " << v.y << " " << v.z <<  " " << v.w << "]";
+	s << "[ " << v.x << " " << v.y << " " << v.z <<  " " << v.w << " ]";
 	return s;
 }
 

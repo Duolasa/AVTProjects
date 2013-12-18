@@ -42,7 +42,6 @@ void engine::Mat4::Transpose(){
 		matrix[i] = transpose[i];
 }
 
-
 engine::Mat4 engine::Mat4::operator* (Mat4 other){
 
 	Mat4 m;

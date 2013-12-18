@@ -2,7 +2,7 @@
 
 // Constructors
 engine::Quaternion::Quaternion(){
-	t = 0.0f; x = 0.0f; y = 0.0f; z = 0.0f;
+	t = 1.0f; x = 0.0f; y = 0.0f; z = 0.0f;
 }
 
 engine::Quaternion::Quaternion(float tt, float xx, float yy, float zz){
@@ -200,7 +200,7 @@ engine::Mat4 engine::GetRotation(engine::Quaternion& q){
 	return q.getMatrix();
 }
 
-std::ostream &operator<<(std::ostream &s, const engine::Quaternion &q){
-	s << " = (" << q.t << ", " << q.x << ", " << q.y << ", " << q.z << ")" << std::endl;
+std::ostream &engine::operator<<(std::ostream &s, const engine::Quaternion &q){
+	s << "(" << q.t << ", " << q.x << ", " << q.y << ", " << q.z << ")" << std::endl;
 	return s;
 }

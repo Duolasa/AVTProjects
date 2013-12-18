@@ -29,6 +29,7 @@ namespace engine {
 	{
 		if(isOpenGLError()) {
 			std::cerr << error << std::endl;
+			system("pause");
 			exit(EXIT_FAILURE);
 		}
 	}

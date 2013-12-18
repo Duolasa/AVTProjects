@@ -8,4 +8,8 @@
 
 #include "Entity.h"
 
+#include "Mesh.h"
+
+#include "Camera.h"
+
 #endif //ENGINE_H

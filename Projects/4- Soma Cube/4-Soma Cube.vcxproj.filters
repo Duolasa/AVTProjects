@@ -18,6 +18,23 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Board.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Piece.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SomaPiece.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Mirror.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
     <ClCompile Include="Source\assignment_4.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -29,16 +46,26 @@
     <None Include="Source\shaders\frag.shader">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Source\shaders\frag_light.shader">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Source\shaders\frag_normals.shader">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Source\shaders\fragb.shader">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Source\shaders\fragw.shader">
+      <Filter>Shaders</Filter>
+    </None>
     <None Include="Source\shaders\vert.shader">
       <Filter>Shaders</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Source\Manager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Mirror.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <None Include="Source\shaders\vert_light.shader">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Source\shaders\vert_normals.shader">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

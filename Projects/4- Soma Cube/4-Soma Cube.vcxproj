@@ -11,10 +11,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\assignment_4.cpp" />
-    <ClCompile Include="Source\Mirror.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Engine\Engine.vcxproj">
       <Project>{dbce90b1-8d23-4833-9a35-e628cf3ac9af}</Project>
       <Private>true</Private>
@@ -25,12 +21,25 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Source\shaders\frag.shader" />
-    <None Include="Source\shaders\vert.shader" />
-  </ItemGroup>
-  <ItemGroup>
+    <ClInclude Include="Source\Board.h" />
     <ClInclude Include="Source\Manager.h" />
     <ClInclude Include="Source\Mirror.h" />
+    <ClInclude Include="Source\Piece.h" />
+    <ClInclude Include="Source\SomaPiece.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\assignment_4.cpp" />
+    <ClCompile Include="Source\Mirror.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Source\shaders\frag.shader" />
+    <None Include="Source\shaders\fragb.shader" />
+    <None Include="Source\shaders\fragw.shader" />
+    <None Include="Source\shaders\frag_light.shader" />
+    <None Include="Source\shaders\frag_normals.shader" />
+    <None Include="Source\shaders\vert.shader" />
+    <None Include="Source\shaders\vert_light.shader" />
+    <None Include="Source\shaders\vert_normals.shader" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{85982A9D-44C1-4FCF-904A-CA10CFB559CF}</ProjectGuid>

@@ -9,15 +9,23 @@
 #include "Vector.h"
 #include "Quaternion.h"
 
+#define VERTICES 0
+#define COLORS 1
+#define NORMALS 2
+#define TEXTURE_COORDS 3
 
 namespace engine {
 
-#define VERTICES 0
-#define COLORS 1
+	struct Position {
+		Vec3 translation;
+		Quaternion rotation;
+	};
 
 	typedef struct {
 		GLfloat XYZW[4];
 		GLfloat RGBA[4];
+		GLfloat NXYZW[4];
+		GLfloat UV[2];
 	} Vertex;
 
 	class Entity {
@@ -26,23 +34,37 @@ namespace engine {
 
 		const Vertex * verts;
 		GLuint UBO_BP;
-		GLint size;
-		Shader shader;
-		Mat4 transfM;
-		Vec3 translation;
-		Quaternion rotation;
+		GLint _size;
+		Position _pos;
+		Vec3 _scale;				// scale of entity       
+		Vec3 _toCenter;				// center of entity to rotate from
+		GLuint VaoId, VboId[2];
+		GLint _stencilId;
 
+		Mat4 _positionMatrix;
+
+		Mat4 getPositionMatrix(){
+			// because is transpose the order is inverse M = R * T instead of M = T * R
+			Mat4 mat =  (GetScale(_scale) *_pos.rotation.getMatrix())* GetTranslation(_pos.translation);
+			return mat;
+		}
 
 	public:
-		Entity();
-		Entity(Vec3 pos, Quaternion q);
-		~Entity();
-		GLuint VaoId, VboId[2];
 
-		template<size_t N>
-		void createBufferObject(const Vertex (&Vertices)[N],const GLuint UBO){
+		Entity(){
+			_scale = Vec3(1);
+			_toCenter = Vec3(0);
+			_pos.translation = Vec3(0);
+			_pos.rotation = Quaternion();
 
-			size = N;
+			_positionMatrix = GetIdentity();
+		}
+		~Entity(){}
+		
+
+		
+		void createBufferObject(const Vertex *Vertices, GLint N, const GLuint UBO){
+			_size = N;
 
 			UBO_BP = UBO;
 
@@ -53,11 +75,16 @@ namespace engine {
 			glGenBuffers(2, VboId);
 
 			glBindBuffer(GL_ARRAY_BUFFER, VboId[0]);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), (Vertices), GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*N, (Vertices), GL_STATIC_DRAW);
 			glEnableVertexAttribArray(VERTICES);
 			glVertexAttribPointer(VERTICES, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
 			glEnableVertexAttribArray(COLORS);
 			glVertexAttribPointer(COLORS, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid *)sizeof(Vertices[0].XYZW));
+			glEnableVertexAttribArray(NORMALS);
+			glVertexAttribPointer(NORMALS, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid *)(sizeof(Vertices[0].XYZW) + sizeof(Vertices[0].RGBA)));
+			glEnableVertexAttribArray(TEXTURE_COORDS);
+			glVertexAttribPointer(TEXTURE_COORDS, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid *)(sizeof(Vertices[0].XYZW) + sizeof(Vertices[0].RGBA) + sizeof(Vertices[0].NXYZW)));
+
 
 			glBindBuffer(GL_UNIFORM_BUFFER, VboId[1]);
 			glBufferData(GL_UNIFORM_BUFFER, sizeof(Mat4)*2, 0, GL_STREAM_DRAW);
@@ -68,16 +95,88 @@ namespace engine {
 			glBindBuffer(GL_UNIFORM_BUFFER, 0);
 			glDisableVertexAttribArray(VERTICES);
 			glDisableVertexAttribArray(COLORS);
+			glDisableVertexAttribArray(NORMALS);
+			glDisableVertexAttribArray(TEXTURE_COORDS);
 
-			//checkOpenGLError("ERROR: Could not create VAOs and VBOs.");
-			//createBufferObject();
 		}
 
-		void destroyBufferObject();
-		void draw(ShaderProgram* progShader, GLint UniformId);
-		GLuint getVboId();
-		void addTranslation(Vec3 newTranslation);
-		void addRotation(Quaternion newRotation);
+		void destroyBufferObject(){
+
+			glDisableVertexAttribArray(VERTICES);
+			glDisableVertexAttribArray(COLORS);
+			glDisableVertexAttribArray(NORMALS);
+			glDisableVertexAttribArray(TEXTURE_COORDS);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glBindVertexArray(0);
+
+			glDeleteBuffers(2, VboId);
+			glDeleteVertexArrays(1, &VaoId);
+		}
+
+		void setStencilId(GLint id){
+			_stencilId = id;
+		}
+
+		void draw(ShaderProgram* progShader, GLint UniformId){
+			glStencilFunc(GL_ALWAYS, _stencilId, -1);
+			glBindVertexArray(VaoId);
+			glUseProgram(progShader->getProgramId());
+
+			glUniformMatrix4fv(UniformId, 1, GL_FALSE, getPositionMatrix().matrix);	
+			glDrawArrays(GL_TRIANGLES, 0, _size);
+			
+			glUseProgram(0);
+			glBindVertexArray(0);
+		}
+
+		void drawLine(ShaderProgram* progShader, GLint UniformId){
+
+			glBindVertexArray(VaoId);
+			glUseProgram(progShader->getProgramId());
+
+			glUniformMatrix4fv(UniformId, 1, GL_FALSE, /**/ getPositionMatrix().matrix);	
+			glDrawArrays(GL_LINE_STRIP, 0, _size);
+			
+			glUseProgram(0);
+			glBindVertexArray(0);
+		}
+
+		GLuint getVboId(){
+			return VboId[1];
+		}
+
+		void setPosition(Position pos){
+			_pos = pos;
+		}
+
+		void addPosition(Position pos){
+			_pos.translation += pos.translation;
+			_pos.rotation = pos.rotation * _pos.rotation;
+		}
+
+		void addTranslation(Vec3 pos){
+			_pos.translation += pos;
+		}
+
+		void addRotation(Quaternion rot){
+			_pos.rotation = rot * _pos.rotation;
+		}
+
+		void setScale(Vec3 scale){
+			_scale = scale;
+		}
+
+		void setCenter(Vec3 center){
+			_toCenter = center;
+		}
+
+		void setTranslation(Vec3 translate){
+			_pos.translation = translate;
+		}
+
+		void moveToCenter(){
+			_pos.translation = _toCenter;
+		}
 
 	};
 

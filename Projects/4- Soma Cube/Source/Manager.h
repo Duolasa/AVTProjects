@@ -1,106 +1,266 @@
 #ifndef MANAGER_H
 #define MANAGER_H
 
-#include "GL/glew.h"
-#include "GL/freeglut.h"
+#include "Engine.h"
+#include "SomaPiece.h"
+#include "Board.h"
 
-#include "Pieces.h"
+#define VERTICES 0
+#define COLORS 1
+#define NORMALS 2
+#define TEXTURE_COORDS 3
 
 namespace engine {
 	class Manager {
 	private:
-		GLuint VBO_ID;
-		
-		Quaternion qx;
+
+		ShaderProgram *normalShader, *blackShader, *whiteShader, *textureShader;
+
+		Shader vertS, fragS;
+		Shader vertSb, fragSb;
+		Shader vertSw, fragSw;
+		Shader vertSt, fragSt;
+
+		GLint UboId, UniformId, GsamplerId;
+		GLuint UBO_BP;
+		GLuint VBOID;
+
+		Camera camera;
+		Line line;
+
+		Entity entityCube; //for test only
+
+		// board
+		Board board;
+
+		// Pieces
+		Entity reflectionPlane;
+		BigLPiece bigLPiece;
+		SmallLPiece smallLPiece;
+		TPiece tPiece;
+		SnakePiece snakePiece;
+		StrangePiece1 strangePiece1;
+		StrangePiece2 strangePiece2;
+		CornerPiece cornerPiece;
+
+		//Position _position; //position to move
+
+		//int _identifier; //identifier of selected piece
+
 	public:
-		Manager(){
-			qx = Quaternion(0.0f, Z_AXIS);
-		}
+		Manager(){ UBO_BP = 0; board = Board(9); }
 		~Manager(){}
 
-		void createPieces(GLuint UBO){
-			Entity* BigLPieceE = new Entity();
-			BigLPieceE->createBufferObject(BigLPiece, UBO);
-			ENTITY_LIST::instance()->add("BigLPiece", BigLPieceE);
+		void createShaderPrograms(){
 
-			Entity* SmallLPieceE = new Entity();
-			SmallLPieceE->createBufferObject(SmallLPiece, UBO);
-			ENTITY_LIST::instance()->add("SmallLPiece", SmallLPieceE);
+			
+			vertSt = Shader(GL_VERTEX_SHADER);
+			fragSt = Shader(GL_FRAGMENT_SHADER);
 
-			Entity* TPieceE = new Entity();
-			TPieceE->createBufferObject(TPiece, UBO);
-			ENTITY_LIST::instance()->add("TPiece", TPieceE);
+			vertSt.loadShader("shaders/vert_texture.shader");
+			fragSt.loadShader("shaders/frag_texture.shader");
+			textureShader = new ShaderProgram(vertSt, fragSt);
+			textureShader->bindAttribute(VERTICES, "in_Position");
+			textureShader->bindAttribute(TEXTURE_COORDS, "in_textCoord");
+			textureShader->linkProg();
+			UniformId = textureShader->getUniformLocation("ModelMatrix");
+			UboId = textureShader->getUniformBlockIndex("SharedMatrices", UBO_BP);
+			GsamplerId = textureShader->getUniformLocation("gsampler");
+			
+			///////////////////////////////////////////////////////////////////////
+			vertS = Shader(GL_VERTEX_SHADER);
+			fragS = Shader(GL_FRAGMENT_SHADER);
 
-			Entity* snakePieceE = new Entity();
-			snakePieceE->createBufferObject(snakePiece, UBO);
-			ENTITY_LIST::instance()->add("snakePiece", snakePieceE);
+			vertS.loadShader("shaders/vert_normals.shader");
+			fragS.loadShader("shaders/frag_normals.shader");
+			normalShader = new ShaderProgram(vertS,fragS);
+			normalShader->bindAttribute(VERTICES, "in_Position");
+			normalShader->bindAttribute(COLORS, "in_Color");
+			normalShader->bindAttribute(NORMALS, "in_Normal");
+			normalShader->linkProg();
+			UniformId = normalShader->getUniformLocation("ModelMatrix");
+			UboId = normalShader->getUniformBlockIndex("SharedMatrices", UBO_BP);
 
-			Entity* strangePiece1E = new Entity();
-			strangePiece1E->createBufferObject(strangePiece1, UBO);
-			ENTITY_LIST::instance()->add("strangePiece1", strangePiece1E);
+			////////////////////////////////////////////////////////////////////////
+			vertSb = Shader(GL_VERTEX_SHADER);
+			fragSb = Shader(GL_FRAGMENT_SHADER);
 
-			Entity* strangePiece2E = new Entity();
-			strangePiece2E->createBufferObject(strangePiece2, UBO);
-			ENTITY_LIST::instance()->add("strangePiece2", strangePiece2E);
+			vertSb.loadShader("shaders/vert.shader");
+			fragSb.loadShader("shaders/fragb.shader");
+			blackShader = new ShaderProgram(vertSb,fragSb);
+			blackShader->bindAttribute(VERTICES, "in_Position");
+			blackShader->bindAttribute(COLORS, "in_Color");
+			blackShader->linkProg();
+			UniformId = blackShader->getUniformLocation("ModelMatrix");
+			UboId = blackShader->getUniformBlockIndex("SharedMatrices", UBO_BP);
 
-			Entity* cornerPieceE = new Entity();
-			cornerPieceE->createBufferObject(cornerPiece, UBO);
-			ENTITY_LIST::instance()->add("cornerPiece", cornerPieceE);
+			////////////////////////////////////////////////////////////////////////
 
-			Entity* mirror1 = new Entity();
-			cornerPieceE->createBufferObject(Plane, UBO);
-			ENTITY_LIST::instance()->add("mirror", cornerPieceE);
+			vertSw = Shader(GL_VERTEX_SHADER);
+			fragSw = Shader(GL_FRAGMENT_SHADER);
 
-			VBO_ID = cornerPieceE->getVboId();
-			//NODE_LIST::instance()->add("root", new Node());
+			vertSw.loadShader("shaders/vert.shader");
+			fragSw.loadShader("shaders/fragw.shader");
+			whiteShader = new ShaderProgram(vertSw,fragSw);
+			whiteShader->bindAttribute(VERTICES, "in_Position");
+			whiteShader->bindAttribute(COLORS, "in_Color");
+			whiteShader->linkProg();
+			UniformId = whiteShader->getUniformLocation("ModelMatrix");
+			UboId = whiteShader->getUniformBlockIndex("SharedMatrices", UBO_BP);
+	
+			///////////////////////////////////////////////////////////////////////
+			SHADER_PROGRAM_LIST::instance()->add("normal", normalShader);
+			SHADER_PROGRAM_LIST::instance()->add("black", blackShader);
+			SHADER_PROGRAM_LIST::instance()->add("white", whiteShader);
+		}
 
+		void destroyShadersPrograms(){
+
+			normalShader->destroyShaderProgram();
+			vertS.deleteShader();
+			fragS.deleteShader();
+			/////////////////////////////////////////////////
+			blackShader->destroyShaderProgram();
+			vertSb.deleteShader();
+			fragSb.deleteShader();
+
+			/////////////////////////////////////////////////
+			whiteShader->destroyShaderProgram();
+			vertSw.deleteShader();
+			fragSw.deleteShader();
+		}
+
+		void init(){
 
 		}
-		void destroyPieces(){
-			std::map<std::string, Entity*> map = ENTITY_LIST::instance()->getList();
-			for (std::map<std::string, Entity*>::iterator it = map.begin(); it!=map.end(); ++it)
-				(it->second)->destroyBufferObject();
+
+		void setCamera(){
+			camera.setPerspProjection(30, 640/480.0f, 1, 100);
+		//	camera.setOrthoProjection(-2,2,-2,2,0,1500);
+			camera.setOrthoProjection(20, -20, -20, 20, 0, 1000);
+
+			camera.setLookAt(Vec3(0,0,30),Vec3(0,0,0),Vec3(0,1,0));
 		}
-		void drawPieces(ShaderProgram* progShader, GLint UniformId, int selectedPieceX, Vec3 transl, Quaternion q){
-			std::map<std::string, Entity*> map = ENTITY_LIST::instance()->getList();
-			int i=1;
-			for (std::map<std::string, Entity*>::iterator it = map.begin(); it!=map.end(); ++it){
-				if(i == selectedPieceX){				
-					(it->second)->addTranslation(transl);
-					(it->second)->addRotation(q);
-				}
-				(it->second)->draw(progShader,UniformId);
-				i++;
+
+		void createBufferObjects(){
+			//bigLPiece = BigLPiece();
+			//smallLPiece = SmallLPiece();
+
+			line.createBufferObject(UBO_BP);
+			Mesh planeMesh = Mesh("models/Plane.obj");
+			reflectionPlane = planeMesh.getMeshEntity(UBO_BP);
+
+			//for test
+			Mesh cubeMesh = Mesh("models/bevelCube.obj");
+			entityCube = cubeMesh.getMeshEntity(UBO_BP);
+
+			smallLPiece.setInitPosition(Vec3(0));
+			smallLPiece.createBufferObject(UBO_BP);
+
+			bigLPiece.setInitPosition(Vec3(0));
+			bigLPiece.createBufferObject(UBO_BP);
+
+			tPiece.setInitPosition(Vec3(0));
+			tPiece.createBufferObject(UBO_BP);
+
+			strangePiece1.setInitPosition(Vec3(0));
+			strangePiece1.createBufferObject(UBO_BP);
+
+			strangePiece2.setInitPosition(Vec3(0));
+			strangePiece2.createBufferObject(UBO_BP);
+
+			cornerPiece.setInitPosition(Vec3(0));
+			cornerPiece.createBufferObject(UBO_BP);
+
+			//return VBOID of last piece created
+			VBOID = cornerPiece.getVboId();
+		}
+
+		void setupBoard(){ //TODO set board
+			//set board pieces
+			//board.setPiece(smallLPiece.getPiecePositions(), smallLPiece.getSize(),smallLPiece.getStencilId());
+			board.setPiece(bigLPiece.getPiecePositions(), bigLPiece.getSize(),bigLPiece.getStencilId());
+			//board.setPiece(tPiece.getPiecePositions(), tPiece.getSize(),tPiece.getStencilId());
+			//board.setPiece(strangePiece1.getPiecePositions(), strangePiece1.getSize(),strangePiece1.getStencilId());
+			//board.setPiece(strangePiece2.getPiecePositions(), strangePiece2.getSize(),strangePiece2.getStencilId());
+			//board.setPiece(cornerPiece.getPiecePositions(), cornerPiece.getSize(),cornerPiece.getStencilId());
+		}
+
+		void destroyBufferObjects(){
+			reflectionPlane.destroyBufferObject();
+			entityCube.destroyBufferObject();
+			line.destroyBufferObject();
+			smallLPiece.destroyBufferObject();
+			bigLPiece.destroyBufferObject();
+			tPiece.destroyBufferObject();
+			strangePiece1.destroyBufferObject();
+			strangePiece2.destroyBufferObject();
+			cornerPiece.destroyBufferObject();
+		}
+
+		void drawMirror(bool persp, float RotationAngleX, float RotationAngleY, float CameraScale, Position position, GLuint id){
+		//	glUniform1i(GsamplerId, 0);
+
+		//	camera.draw(persp, VBOID, RotationAngleX, RotationAngleY, CameraScale);
+			reflectionPlane.setScale(Vec3(2.0f, 2.0f, 2.0f));
+			reflectionPlane.draw(textureShader, UniformId);
+		}
+
+		void draw(bool persp, float RotationAngleX, float RotationAngleY, float CameraScale, Position position, GLuint id){
+			camera.draw(persp, VBOID, RotationAngleX, RotationAngleY, CameraScale);
+
+			//draw all other pieces
+			drawPiece(&bigLPiece, position, id);
+			//drawPiece(&smallLPiece, position, id);
+			//drawPiece(&tPiece, position, id);
+			//drawPiece(&strangePiece1, position, id);
+			//drawPiece(&strangePiece2, position, id);
+			//drawPiece(&cornerPiece, position, id);
+
+			line.draw(UniformId, "X_AXIS");
+			line.draw(UniformId, "Y_AXIS");
+			line.draw(UniformId, "Z_AXIS");
+
+		}
+
+		//piece as pointer because it doesnt work other way around
+		void drawPiece(SomaPiece *piece, Position pos, GLuint id){
+
+			// Once upon a time...
+			// pointer to a function gives the same values...
+			// therefore put the values in a array
+			Vec3* previousPos = piece->getPiecePositions();
+			Vec3 ppp[4];
+			ppp[0] = previousPos[0];
+			ppp[1] = previousPos[1];
+			ppp[2] = previousPos[2];
+			ppp[3] = previousPos[3];
+			Vec3* previousPos2;
+			previousPos2 = ppp;
+
+			piece->givePosition(pos, id);
+
+			Vec3* newPos = piece->getPiecePositions();
+			Vec3 ppp2[4];
+			ppp2[0] = newPos[0];
+			ppp2[1] = newPos[1];
+			ppp2[2] = newPos[2];
+			ppp2[3] = newPos[3];
+			Vec3* newPos2;
+			newPos2 = ppp2;
+
+
+			if(board.canMove(newPos2, piece->getSize(),piece->getStencilId())){
+				board.erasePiece(previousPos2, piece->getSize());
+				board.setPiece(newPos, piece->getSize(),piece->getStencilId());
+				piece->setPiecePositions(newPos2);
+				piece->draw(UniformId, id);
+			}else{
+				piece->setPiecePositions(previousPos2);
+				piece->draw(UniformId, id);
 			}
 		}
-		void setCamera(float RotationAngleX, float RotationAngleY){
-			
-			//TODO: change these names :'(
-			Mat4 projectionMatrix = GetPerspProjection(30,640/480.0f,1,15);
-			Mat4 viewMatrixx = GetView(Vec3(0,0,10),Vec3(0,0,0),Vec3(0,1,0));
 
-	
-			Quaternion qX = Quaternion(RotationAngleY*.5f, Y_AXIS);
-			Quaternion qY = Quaternion(RotationAngleX*.5f, X_AXIS);
-
-			Quaternion qv = qX * qY;
-
-			qx = qv * qx;
-			//qx = qMultiply(qZ,qY);
-			//aux = rotY * rotZ;
-
-			//qPrint("qx", qx);
-			Mat4 m = qx.getMatrix();
-			//m.Transpose();
-			viewMatrixx =   m * viewMatrixx ;
-
-			//viewMatrixx = GetScale(CameraScale) * viewMatrixx;
-
-			glBindBuffer(GL_UNIFORM_BUFFER, VBO_ID);
-			glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Mat4), viewMatrixx.matrix);
-			glBufferSubData(GL_UNIFORM_BUFFER, sizeof(Mat4), sizeof(Mat4), projectionMatrix.matrix);
-			glBindBuffer(GL_UNIFORM_BUFFER, 0);
-		}
 	};
 }
 

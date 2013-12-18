@@ -14,7 +14,7 @@ namespace engine {
 		ListManager(){}
 	public:
 		static ListManager* instance(){
-			if (_instance == 0) { _instance = new ListManager(); }
+			if (_instance == 0) { _instance = new ListManager();}
 			return _instance; 
 		}
 		~ListManager(){}
@@ -22,6 +22,7 @@ namespace engine {
 			if (_instance != 0) { delete _instance; }
 		}
 		void add(std::string name, T* t){
+			
 			_list.insert(std::pair<std::string,T*>(name,t));
 		}
 		void remove(std::string name){

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
 //
-// Assignment 4 consists in the following:
+// Assignment 4/5 consists in the following:
 //
 // - Access to different pieces of SomaCube.
 // - Snap pieces.
@@ -25,160 +25,273 @@
 
 #include "Engine.h"
 
-#include "OpenGLErrors.h"
+#include "Piece.h"
+#include "SomaPiece.h"
+#include "Board.h"
 
 #include "Manager.h"
-#include "Pieces.h"
 #include "Mirror.h"
+
+#include "OpenGLErrors.h"
+
 using namespace engine;
 
 #define CAPTION "Hello Blank World"
 
-#define VERTICES 0
-#define COLORS 1
 
 int WinX = 640, WinY = 480;
 int WindowHandle = 0;
 unsigned int FrameCount = 0;
 bool hasReshape = false;
 
+Mirror mirror = Mirror();
+
 GLint UboId, UniformId;
 const GLuint UBO_BP = 0;
+GLuint VBOID;
 
 int LastMousePositionX;
 int LastMousePositionY;
 float RotationAngleY = 0.0f;
 float RotationAngleX = 0.0f;
-float CameraScale = 1;
-float smoothScale = 1.01f;
+float CameraScale = 0.0f;
 
-Quaternion editRotation;
-Vec3 editTranslation;
+int mouse_x;
+int mouse_y;
 
-bool _x = true, _y = false, _z = false;
-std::string filename;
-int selectedPiece = 1;
+bool persp = true;
 
-ShaderProgram *normalShader = new ShaderProgram();
+bool mouseView = false;
+int identifier = 0;
+std::string axis = "X_AXIS";
 
-Mirror mirror1 = Mirror();
+double cam_xmin, cam_xmax, cam_ymin, cam_ymax;
+
+Position position;
+
+ShaderProgram *normalShader;
+Shader vertS = Shader(GL_VERTEX_SHADER);
+Shader fragS = Shader(GL_FRAGMENT_SHADER);
+
+ShaderProgram *blackShader;
+Shader vertSb = Shader(GL_VERTEX_SHADER);
+Shader fragSb = Shader(GL_FRAGMENT_SHADER);
+
+ShaderProgram *whiteShader;
+Shader vertSw = Shader(GL_VERTEX_SHADER);
+Shader fragSw = Shader(GL_FRAGMENT_SHADER);
 /////////////////////////////////////////////////////////////////////// SHADERs
-
+Manager manager;
 
 void createShaderProgram()
 {
-	//normalShader->loadShaders("shaders/vert.shader", "shaders/frag.shader");
-	Shader vertS = Shader(GL_VERTEX_SHADER, "shaders/vert.shader");
-	Shader fragS = Shader(GL_FRAGMENT_SHADER, "shaders/frag.shader");
-	normalShader->loadShaders(vertS,fragS);
+	/** /
+	vertS.loadShader("shaders/vert_normals.shader");
+	fragS.loadShader("shaders/frag_normals.shader");
+	normalShader = new ShaderProgram(vertS,fragS);
 	normalShader->bindAttribute(VERTICES, "in_Position");
 	normalShader->bindAttribute(COLORS, "in_Color");
+	normalShader->bindAttribute(NORMALS, "in_Normal");
 	normalShader->linkProg();
 	UniformId = normalShader->getUniformLocation("ModelMatrix");
 	UboId = normalShader->getUniformBlockIndex("SharedMatrices", UBO_BP);
+
+	////////////////////////////////////////////////////////////////////////
+	vertSb.loadShader("shaders/vert.shader");
+	fragSb.loadShader("shaders/fragb.shader");
+	blackShader = new ShaderProgram(vertSb,fragSb);
+	blackShader->bindAttribute(VERTICES, "in_Position");
+	blackShader->bindAttribute(COLORS, "in_Color");
+	blackShader->linkProg();
+	UniformId = blackShader->getUniformLocation("ModelMatrix");
+	UboId = blackShader->getUniformBlockIndex("SharedMatrices", UBO_BP);
+
+	////////////////////////////////////////////////////////////////////////
+	vertSw.loadShader("shaders/vert.shader");
+	fragSw.loadShader("shaders/fragw.shader");
+	whiteShader = new ShaderProgram(vertSw,fragSw);
+	whiteShader->bindAttribute(VERTICES, "in_Position");
+	whiteShader->bindAttribute(COLORS, "in_Color");
+	whiteShader->linkProg();
+	UniformId = whiteShader->getUniformLocation("ModelMatrix");
+	UboId = whiteShader->getUniformBlockIndex("SharedMatrices", UBO_BP);
+	
+	SHADER_PROGRAM_LIST::instance()->add("normal", normalShader);
+	SHADER_PROGRAM_LIST::instance()->add("black", blackShader);
+	SHADER_PROGRAM_LIST::instance()->add("white", whiteShader);
+	/**/
+	manager.createShaderPrograms();
 
 	checkOpenGLError("ERROR: Could not create shaders.");
 }
 
 void destroyShaderProgram()
 {
+	/** /
 	normalShader->destroyShaderProgram();
+	vertS.deleteShader();
+	fragS.deleteShader();
+	/////////////////////////////////////////////////
+	blackShader->destroyShaderProgram();
+	vertSb.deleteShader();
+	fragSb.deleteShader();
 
+	/////////////////////////////////////////////////
+	whiteShader->destroyShaderProgram();
+	vertSw.deleteShader();
+	fragSw.deleteShader();
+	/**/
+
+	manager.destroyShadersPrograms();
 	checkOpenGLError("ERROR: Could not destroy shaders.");
 }
 
 //////////////////////////////////////////////////////////////////////// VBOs VAOs
+Mesh cubeMesh;
+Entity entityMesh;
+Entity entityCube;
+Line line;
+Board board = Board(9);
 
-Entity entity;
-Manager manager;
+BigLPiece bigLPiece = BigLPiece();
+SmallLPiece smallLPiece = SmallLPiece();
+
+Camera camera;
 
 void createBufferObjects(){
+	/** /
+	camera.setPerspProjection(30, 640/480.0f, 1, 100);
+	camera.setOrthoProjection(-2,2,-2,2,1,15);
+	camera.setLookAt(Vec3(0,0,30),Vec3(0,0,0),Vec3(0,1,0));
 
-	manager.createPieces(UBO_BP);
-	//entity.createBufferObject(PieceCube, UBO_BP);
+	line.createBufferObject(UBO_BP);
+
+	cubeMesh = Mesh("models/bevelCube.obj");
+	entityCube = cubeMesh.getMeshEntity(UBO_BP);
+
+	smallLPiece.setInitPosition(Vec3(0));
+	smallLPiece.createBufferObject(UBO_BP);
+	//bigLPiece.createBufferObject(UBO_BP);
+
+	VBOID = smallLPiece.getVboId();
+
+	position.translation = Vec3(0);
+	position.rotation = Quaternion();
+
+	board.setPiece(smallLPiece.getPiecePositions(), smallLPiece.getSize(),smallLPiece.getStencilId());
+	/**/
+	manager.setCamera();
+	manager.createBufferObjects();
+
+	position.translation = Vec3(0);
+	position.rotation = Quaternion();
 
 	checkOpenGLError("ERROR: Could not create VAOs VBOs");
 }
 
 void destroyBufferObject(){
-
-	//entity.destroyBufferObject();
-	manager.destroyPieces();
+	/** /
+	entityCube.destroyBufferObject();
+	line.destroyBufferObject();
+	smallLPiece.destroyBufferObject();
+	//bigLPiece.destroyBufferObject();
+	/**/
+	manager.destroyBufferObjects();
 	checkOpenGLError("ERROR: Could not destroy VAOs VBOs");
 }
 
-void draw(){
+void setupBoard(){
+	manager.setupBoard();
+}
 
-	manager.setCamera(RotationAngleX, RotationAngleY);
+Quaternion qx = Quaternion();
+
+void draw(){
+	/** /
+	camera.draw(persp, VBOID, RotationAngleX, RotationAngleY, CameraScale);
+	RotationAngleY = RotationAngleX = 0;
+	
+	//////////////////////////////////////////////////////////
+	//bigLPiece.setPosition(position);
+	//bigLPiece.draw(UniformId, identifier);
+
+	// once upon a time... 
+
+	Vec3* previousPos = smallLPiece.getPiecePositions();
+	Vec3 ppp[4];
+	ppp[0] = previousPos[0];
+	ppp[1] = previousPos[1];
+	ppp[2] = previousPos[2];
+	ppp[3] = previousPos[3];
+	Vec3* previousPos2;
+	previousPos2 = ppp;
+
+	smallLPiece.givePosition(position,identifier);
+
+	Vec3* newPos = smallLPiece.getPiecePositions();
+	Vec3 ppp2[4];
+	ppp2[0] = newPos[0];
+	ppp2[1] = newPos[1];
+	ppp2[2] = newPos[2];
+	ppp2[3] = newPos[3];
+	Vec3* newPos2;
+	newPos2 = ppp2;
+
+
+	if(board.canMove(newPos2, smallLPiece.getSize(),smallLPiece.getStencilId())){
+		board.erasePiece(previousPos2, smallLPiece.getSize(),smallLPiece.getStencilId());
+		board.setPiece(newPos, smallLPiece.getSize(),smallLPiece.getStencilId());
+		smallLPiece.setPiecePositions(newPos2);
+		smallLPiece.draw(UniformId, identifier);
+	}else{
+		smallLPiece.setPiecePositions(previousPos2);
+		smallLPiece.draw(UniformId, identifier);
+	}
+
+	//entityCube.draw(normalShader, UniformId);
+
+	/** /
+	Position posId = bigLPiece.getPositionIdentifier();
+	posId.translation = posId.translation * 1.1; //same as scale of cubes
+
+	if(identifier != 0){
+		line.setPosition(posId);
+		line.draw(UniformId, axis);
+	}
+	/**/
+	/** /
+	line.draw(UniformId, "X_AXIS");
+	line.draw(UniformId, "Y_AXIS");
+	line.draw(UniformId, "Z_AXIS");
+
+	position.translation = Vec3(0);
+	position.rotation = Quaternion();
+	/**/
+
+	//manager.setPosition(position);
+	//manager.setIdentifier(identifier);
+	mirror.Bind();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	manager.draw(persp, RotationAngleX, RotationAngleY, CameraScale, position, identifier);
 	RotationAngleY = RotationAngleX = 0;
 
-	manager.drawPieces(normalShader, UniformId, selectedPiece, editTranslation, editRotation);
-	editTranslation = Vec3(0.0f);
-	editRotation = Quaternion(0.0f,X_AXIS);
+	position.translation = Vec3(0);
+	position.rotation = Quaternion();
+
+	mirror.Unbind();
+
+	manager.drawMirror(persp, RotationAngleX, RotationAngleY, CameraScale, position, identifier);
+
+
+	manager.draw(persp, RotationAngleX, RotationAngleY, CameraScale, position, identifier);
+	RotationAngleY = RotationAngleX = 0;
+
+	position.translation = Vec3(0);
+	position.rotation = Quaternion();
+
 
 	checkOpenGLError("ERROR: Could not draw");
-}
-/////////////////////////////////////////////////////////////////////// KEYS
-
-void processNormalKeys(unsigned char key, int x, int y) {
-
-	Quaternion qx = Quaternion(90.0f, X_AXIS); 
-	Quaternion qxn = Quaternion(-90.0f, X_AXIS);
-
-	Quaternion qz = Quaternion(90.0f, Z_AXIS);
-	Quaternion qzn = Quaternion(-90.0f, Z_AXIS);
-
-	Quaternion qy = Quaternion(90.0f, Y_AXIS);
-	Quaternion qyn = Quaternion(-90.0f, Y_AXIS);
-
-	if (key == 'z') { _z = true; _y = false; _x = false;} //changes z axis/coords
-	if (key == 'x') { _z = false; _y = false; _x = true;} //changes x axis/coords
-	if (key == 'c') { _z = false; _y = true; _x = false;} //changes y axis/coords
-
-	if (key == 'a' && _z) editTranslation.x = 1.0f;
-	if (key == 'd' && _z) editTranslation.x = - 1.0;
-	if (key == 'w' && _z) editTranslation.y =  1.0;
-	if (key == 's' && _z) editTranslation.y = - 1.0;
-	if (key == 'q' && _z) editRotation = qz;
-	if (key == 'e' && _z) editRotation = qzn;
-
-	if (key == 'a' && _y) editTranslation.x =  1.0;
-	if (key == 'd' && _y) editTranslation.x = - 1.0;
-	if (key == 'w' && _y) editTranslation.z =  1.0;
-	if (key == 's' && _y) editTranslation.z = - 1.0;
-	if (key == 'q' && _y) editRotation = qy;
-	if (key == 'e' && _y) editRotation = qyn;
-
-	if (key == 'a' && _x) editTranslation.y =  1.0;
-	if (key == 'd' && _x) editTranslation.y = - 1.0;
-	if (key == 'w' && _x) editTranslation.z =  1.0;
-	if (key == 's' && _x) editTranslation.z = - 1.0;
-	if (key == 'q' && _x) editRotation = qx;
-	if (key == 'e' && _x) editRotation = qxn;
-
-
-	if (key == '1' ) selectedPiece = 1;
-	if (key == '2' ) selectedPiece = 2;
-	if (key == '3' ) selectedPiece = 3;
-	if (key == '4' ) selectedPiece = 4;
-	if (key == '5' ) selectedPiece = 5;
-	if (key == '6' ) selectedPiece = 6;
-	if (key == '7' ) selectedPiece = 7;
-
-	if (key == 'n'){
-		std::cout << "Please enter filename to save: ";
-		std::cin >> filename;
-		//manager.saveCurrent(filename);
-		std::cout << "Filename saved: " << "xml/" << filename << ".xml" << std::endl;
-	}
-
-	if (key == 'm'){
-		std::cout << "Please enter filename to load: ";
-		std::cin >> filename;
-		//manager.loadCurrent(filename);
-		std::cout << "Filename loaded: " << "xml/" << filename << ".xml" << std::endl;
-	}
-
 }
 
 /////////////////////////////////////////////////////////////////////// CALLBACKS
@@ -197,7 +310,8 @@ void frameTimer(int value){
 void display()
 {
 	++FrameCount;
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearStencil(0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	// Draw something
 	draw();
 
@@ -216,6 +330,21 @@ void reshape(int w, int h)
 	WinX = w;
 	WinY = h;
 	glViewport(0, 0, WinX, WinY);
+
+	 if (w > h)
+    {
+        cam_xmin = -double(w)/h;
+        cam_xmax = double(w)/h;
+        cam_ymin = -1.;
+        cam_ymax = 1.;
+    }
+    else
+    {
+        cam_xmin = -1.;
+        cam_xmax = 1.;
+        cam_ymin = -double(h)/w;
+        cam_ymax = double(h)/w;
+    }
 
 }
 
@@ -238,27 +367,144 @@ void test(){
 
 }
 
-void processMouse(int button, int state, int x, int y){
-	LastMousePositionX = x;
-	LastMousePositionY = y;		
+// Mouse
+double cam_mousex, cam_mousey; // Mouse x, y pos (camunits)
+                               //  Above initialized to 0., 0.
+                               //  then set at first mouse event
+bool dragging = false;
 
-	if (button == 3) // scroll up
-	{
-		CameraScale *= smoothScale;
+void processNormalKeys(unsigned char key, int x, int y) {
+	if (key == 'q') axis = "X_AXIS";
+	if (key == 'w') axis = "Y_AXIS";
+	if (key == 'e') axis = "Z_AXIS";
+
+	if(key == 'a'){
+		if(axis == "X_AXIS") position.rotation = Quaternion(90,X_AXIS);
+		if(axis == "Y_AXIS") position.rotation = Quaternion(90,Y_AXIS);
+		if(axis == "Z_AXIS") position.rotation = Quaternion(90,Z_AXIS);
 	}
 
-	if (button == 4){ //scroll down
-		CameraScale /= smoothScale;
+	if(key == 'd'){
+		if(axis == "X_AXIS") position.rotation = Quaternion(-90,X_AXIS);
+		if(axis == "Y_AXIS") position.rotation = Quaternion(-90,Y_AXIS);
+		if(axis == "Z_AXIS") position.rotation = Quaternion(-90,Z_AXIS);
 	}
+
+	if(key == 'p'){
+		persp = !persp;
+	}
+}
+
+void saveMousePos(int x, int y)
+{
+    double t;  // Lirping parameter
+
+	t = double(x)/WinX;
+    cam_mousex = cam_xmin + t*(cam_xmax-cam_xmin);
+
+    t = double(y)/WinY;
+    cam_mousey = cam_ymax + t*(cam_ymin-cam_ymax);
 
 }
 
-void processMouseMove(int x, int y){
-	RotationAngleY += (x - LastMousePositionX);
-	LastMousePositionX = x;
+void mousedy(int x, int y){
+	double old_mousex = cam_mousex;
+    double old_mousey = cam_mousey;
+    // Compute mouse pos in camera coords & save in globals
+    saveMousePos(x, y);
 
-	RotationAngleX += (y - LastMousePositionY);
-	LastMousePositionY = y;
+	int valx = 0, valy = 0;
+
+	if(dragging && identifier != 0){
+		if(axis == "X_AXIS"){
+			if((cam_mousex - old_mousex)*1000 > 8) valx = 1;
+			if((cam_mousex - old_mousex)*1000 < -8) valx = -1;
+			position.translation.x = position.translation.x + valx;
+			if((cam_mousey - old_mousey)*1000 > 8) valy = 1;
+			if((cam_mousey - old_mousey)*1000 < -8) valy = -1;
+			position.translation.x = position.translation.x + valy;
+		}else if(axis == "Y_AXIS"){
+			if((cam_mousex - old_mousex)*1000 > 8) valx = 1;
+			if((cam_mousex - old_mousex)*1000 < -8) valx = -1;
+			position.translation.y = position.translation.y + valx;
+			if((cam_mousey - old_mousey)*1000 > 8) valy = 1;
+			if((cam_mousey - old_mousey)*1000 < -8) valy = -1;
+			position.translation.y = position.translation.y + valy;
+		}else if(axis == "Z_AXIS"){
+			if((cam_mousex - old_mousex)*1000 > 8) valx = 1;
+			if((cam_mousex - old_mousex)*1000 < -8) valx = -1;
+			position.translation.z = position.translation.z + valx;
+			if((cam_mousey - old_mousey)*1000 > 8) valy = 1;
+			if((cam_mousey - old_mousey)*1000 < -8) valy = -1;
+			position.translation.z = position.translation.z + valy;
+		} 
+
+	}
+	glutPostRedisplay();
+	//std::cerr << (cam_mousex - old_mousex)*1000 << " " <<  (cam_mousey - old_mousey)*1000 << std::endl;
+}
+
+void processMouseMove(int x, int y){
+	if(mouseView){
+		RotationAngleY += (x - LastMousePositionX);
+		LastMousePositionX = x;
+
+		RotationAngleX += (y - LastMousePositionY);
+		LastMousePositionY = y;
+	}
+
+	if(dragging){
+		mousedy(x,y);
+	}
+}
+
+
+void mousedw(int x, int y, int but)
+ {
+	mouse_x = x;
+	mouse_y = y;
+
+	unsigned int stencil[4];
+	glReadPixels(mouse_x, 480 - mouse_y, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_INT, stencil);
+	identifier = stencil[0];
+	//std::cerr <<"id " <<identifier << std::endl;
+	 
+	
+}
+
+void processMouse(int button, int state, int x, int y){
+
+	if 	((button == GLUT_RIGHT_BUTTON) && (state == GLUT_DOWN))
+	{
+		LastMousePositionX = x;
+		LastMousePositionY = y;
+		mouseView = true;
+		
+	}
+	else
+		mouseView = false;
+
+	if 	((button == GLUT_LEFT_BUTTON) && (state == GLUT_DOWN)){
+		dragging = true;
+		mousedw(x, y, button);
+		//mousedy(x,y,button);
+	}else{
+		dragging =false;
+	}
+
+	//mousedy(x,y,button);
+	//dragging = (state == GLUT_DOWN);
+
+	if (button == 3) // scroll up
+	{
+		CameraScale += .5;
+	}
+
+	if (button == 4){ //scroll down
+		CameraScale -= .5;
+	}
+
+	//std::cerr << position.translation << std::endl;
 }
 
 /////////////////////////////////////////////////////////////////////// SETUP
@@ -281,7 +527,8 @@ void setupCallbacks()
 
 void setupOpenGL() {
 	std::cerr << "CONTEXT: OpenGL v" << glGetString(GL_VERSION) << std::endl;
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	//glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	glClearColor(0.9f, 0.9f, 0.9f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	glDepthMask(GL_TRUE);
@@ -290,6 +537,9 @@ void setupOpenGL() {
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
+
+	glEnable(GL_STENCIL_TEST);
+	glStencilOp(GL_KEEP,GL_KEEP,GL_REPLACE);
 }
 
 void setupGLEW() {
@@ -327,7 +577,7 @@ void init(int argc, char* argv[])
 	setupOpenGL();
 	createShaderProgram();
 	createBufferObjects();
-	//test();
+	setupBoard();
 	setupCallbacks();
 }
 
@@ -335,13 +585,30 @@ int main(int argc, char* argv[])
 {
 	/**/
 	init(argc, argv);
+
+	mirror.CreateFrameBuffer(640, 480);
+	mirror.AddDepthBuffer();
+	mirror.Unbind();
+
 	glutMainLoop();	
 	exit(EXIT_SUCCESS);
 	/**/
 
-	//SHADER_LIST::instance()->add("normal",normalShader);
+	/** /
+	Quaternion vi = Quaternion(0,0,1,1);
+	Quaternion q = Quaternion(90,Z_AXIS);
 
+	Quaternion f = (q * vi) * q.Inverse();
 
+	std::cerr << f << std::endl;
+	
+	/** /
+	Quaternion qi = Quaternion(1,0,0,0);
+	Quaternion qf = Quaternion(90,1,0,0);
+
+	Quaternion f = qi * qf;
+	std::cerr << f << std::endl;
+	/**/
 }
 
 ///////////////////////////////////////////////////////////////////////
