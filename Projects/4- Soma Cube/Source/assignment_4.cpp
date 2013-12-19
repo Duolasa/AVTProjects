@@ -270,19 +270,35 @@ void draw(){
 
 	//manager.setPosition(position);
 	//manager.setIdentifier(identifier);
+
+  
+  Vec3 prevEye = manager.camera.getEye();
+  Vec3 prevCenter = manager.camera.getCenter();
+  Vec3 prevUp = manager.camera.getUp();
+  Quaternion prevRotation = manager.camera.getCameraRotation();
+
+  float cameraX = manager.camera.cameraPoint().x;
+  float cameraY = manager.camera.cameraPoint().y;
+  float cameraZ = manager.camera.cameraPoint().z;
+
+  //manager.camera.setLookAt(Vec3(-30, 0, 0), Vec3(cameraX, -cameraY, -cameraZ), Vec3(0, -1, 0));
+  manager.camera.setLookAt(Vec3(-35, 0, 0), Vec3(0,0,0), Vec3(0, -1, 0));
+
+  manager.camera.setCameraRotation(Quaternion(0.0f, Vec4(1.0f,0.0f,0.0f,0.0f)));
+  
+ // std::cout << cameraX << "  " << cameraY << "  " << cameraZ << "  " << std::endl;
+
 	mirror.Bind();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	manager.draw(persp, RotationAngleX, RotationAngleY, CameraScale, position, identifier);
-	RotationAngleY = RotationAngleX = 0;
-
-	position.translation = Vec3(0);
-	position.rotation = Quaternion();
-
+	manager.draw(persp, 0, 0, 0, position, identifier);
+	
 	mirror.Unbind();
 
-	manager.drawMirror(persp, RotationAngleX, RotationAngleY, CameraScale, position, identifier);
+  manager.camera.setLookAt(prevEye, prevCenter, prevUp);
+  manager.camera.setCameraRotation(prevRotation);
 
+  manager.drawMirror(persp, RotationAngleX, RotationAngleY, CameraScale, position, identifier);
 
 	manager.draw(persp, RotationAngleX, RotationAngleY, CameraScale, position, identifier);
 	RotationAngleY = RotationAngleX = 0;

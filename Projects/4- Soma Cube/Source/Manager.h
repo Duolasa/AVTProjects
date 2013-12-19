@@ -25,7 +25,6 @@ namespace engine {
 		GLuint UBO_BP;
 		GLuint VBOID;
 
-		Camera camera;
 		Line line;
 
 		Entity entityCube; //for test only
@@ -35,6 +34,7 @@ namespace engine {
 
 		// Pieces
 		Entity reflectionPlane;
+    Entity reflectionPlane2;
 		BigLPiece bigLPiece;
 		SmallLPiece smallLPiece;
 		TPiece tPiece;
@@ -48,6 +48,8 @@ namespace engine {
 		//int _identifier; //identifier of selected piece
 
 	public:
+    Camera camera;
+
 		Manager(){ UBO_BP = 0; board = Board(9); }
 		~Manager(){}
 
@@ -142,6 +144,8 @@ namespace engine {
 			camera.setLookAt(Vec3(0,0,30),Vec3(0,0,0),Vec3(0,1,0));
 		}
 
+    
+
 		void createBufferObjects(){
 			//bigLPiece = BigLPiece();
 			//smallLPiece = SmallLPiece();
@@ -149,6 +153,8 @@ namespace engine {
 			line.createBufferObject(UBO_BP);
 			Mesh planeMesh = Mesh("models/Plane.obj");
 			reflectionPlane = planeMesh.getMeshEntity(UBO_BP);
+      reflectionPlane2 = planeMesh.getMeshEntity(UBO_BP);
+
 
 			//for test
 			Mesh cubeMesh = Mesh("models/bevelCube.obj");
@@ -188,6 +194,7 @@ namespace engine {
 
 		void destroyBufferObjects(){
 			reflectionPlane.destroyBufferObject();
+      reflectionPlane2.destroyBufferObject();
 			entityCube.destroyBufferObject();
 			line.destroyBufferObject();
 			smallLPiece.destroyBufferObject();
@@ -200,6 +207,7 @@ namespace engine {
 
 		void drawMirror(bool persp, float RotationAngleX, float RotationAngleY, float CameraScale, Position position, GLuint id){
 		//	glUniform1i(GsamplerId, 0);
+      camera.draw(persp, VBOID, RotationAngleX, RotationAngleY, CameraScale);
 
 		//	camera.draw(persp, VBOID, RotationAngleX, RotationAngleY, CameraScale);
 			reflectionPlane.setScale(Vec3(2.0f, 2.0f, 2.0f));

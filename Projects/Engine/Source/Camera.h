@@ -13,6 +13,7 @@ namespace engine {
 		Vec3 _eye;
 		Vec3 _center;
 		Vec3 _up;
+		Vec3 _cameraPoint;
 
 		Quaternion _cameraRotation;
 
@@ -27,6 +28,8 @@ namespace engine {
 			_center = center;
 			_up = up;
 		}
+
+
 
 		void setOrthoProjection(float top, float bottom, float left, float right, float nearZ, float farZ){
 			_orthoProjMatrix = GetOrthoProjection(top, bottom, left, right, nearZ, farZ);
@@ -55,8 +58,17 @@ namespace engine {
 			Quaternion qX = Quaternion(RotationAngleY * _rotationSpeed, Y_AXIS);	
 			Quaternion qY = Quaternion(RotationAngleX * _rotationSpeed, X_AXIS);
 
+
 			_cameraRotation = (qX * qY) * _cameraRotation;
+
 			_viewMatrix = _cameraRotation.getMatrix() * _viewMatrix;
+
+			//Camera Position ..... maybe....
+			Quaternion q = Quaternion(0, _eye.x, _eye.y, _eye.z + zoom);
+			q = (_cameraRotation * q) *_cameraRotation.Inverse();
+			q = q * Quaternion(0,0,0,-1);
+			//std::cerr << "x: " << -q.y << " y: " << q.x << " z: " << -q.t << std::endl;
+			_cameraPoint = Vec3(-q.y, q.x, -q.t);
 
 			glBindBuffer(GL_UNIFORM_BUFFER, VBOID);
 			glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Mat4), _viewMatrix.matrix);
@@ -75,6 +87,18 @@ namespace engine {
 		Vec3 getUp(){
 			return _up;
 		}
+
+		Vec3 cameraPoint(){
+			return _cameraPoint;
+		}
+
+    Quaternion getCameraRotation(){
+      return _cameraRotation;
+    }
+
+    void setCameraRotation(Quaternion q){
+      _cameraRotation = q;
+    }
 
 	};
 }
