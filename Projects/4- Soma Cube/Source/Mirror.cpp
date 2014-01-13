@@ -31,7 +31,6 @@ void Mirror::checkOpenGLError()
 
 void Mirror::CreateFrameBuffer(int w, int h) {
 
-
 	glGenFramebuffers(1, &FBOid);
 	glBindFramebuffer(GL_FRAMEBUFFER, FBOid);
 	CreateTexture(w, h);
@@ -53,20 +52,11 @@ void Mirror::CreateTexture(int w, int h) {  //creates an empty texture
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	float pixels[] = {
-		0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f
-	};
+
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, 0);
 
-	//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, Textureid, 0);
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, Textureid, 0);
 
-
-
-	/* glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-	glGenSamplers(1, &SamplerId);
-	glGenerateMipmap(GL_TEXTURE_2D);*/
 
 }
 
@@ -77,8 +67,6 @@ void Mirror::AddDepthBuffer(){
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
 
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, DRBid);
-
-
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		std::cout << "Failed to create depth buffer: " << glCheckFramebufferStatus(GL_FRAMEBUFFER) << std::endl;
@@ -97,12 +85,14 @@ void Mirror::Bind(){
 
 }
 void Mirror::Unbind(){
+
 	glBindFramebuffer(GL_FRAMEBUFFER, NULL);
+	glBindRenderbuffer(GL_RENDERBUFFER, NULL);
+
 	glBindSampler(0, NULL);
 
 
 }
-
 
 
 Mirror::~Mirror()

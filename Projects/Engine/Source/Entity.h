@@ -162,6 +162,10 @@ namespace engine {
 			_pos.rotation = rot * _pos.rotation;
 		}
 
+		void setRotation(Quaternion rot){
+			_pos.rotation = rot;
+		}
+
 		void setScale(Vec3 scale){
 			_scale = scale;
 		}

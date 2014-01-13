@@ -23,6 +23,8 @@
 #include "GL/glew.h"
 #include "GL/freeglut.h"
 
+#include "freeimage\FreeImage.h"
+
 #include "Engine.h"
 
 #include "Piece.h"
@@ -30,7 +32,6 @@
 #include "Board.h"
 
 #include "Manager.h"
-#include "Mirror.h"
 
 #include "OpenGLErrors.h"
 
@@ -43,8 +44,6 @@ int WinX = 640, WinY = 480;
 int WindowHandle = 0;
 unsigned int FrameCount = 0;
 bool hasReshape = false;
-
-Mirror mirror = Mirror();
 
 GLint UboId, UniformId;
 const GLuint UBO_BP = 0;
@@ -60,6 +59,7 @@ int mouse_x;
 int mouse_y;
 
 bool persp = true;
+int imageid = 0;
 
 bool mouseView = false;
 int identifier = 0;
@@ -85,41 +85,6 @@ Manager manager;
 
 void createShaderProgram()
 {
-	/** /
-	vertS.loadShader("shaders/vert_normals.shader");
-	fragS.loadShader("shaders/frag_normals.shader");
-	normalShader = new ShaderProgram(vertS,fragS);
-	normalShader->bindAttribute(VERTICES, "in_Position");
-	normalShader->bindAttribute(COLORS, "in_Color");
-	normalShader->bindAttribute(NORMALS, "in_Normal");
-	normalShader->linkProg();
-	UniformId = normalShader->getUniformLocation("ModelMatrix");
-	UboId = normalShader->getUniformBlockIndex("SharedMatrices", UBO_BP);
-
-	////////////////////////////////////////////////////////////////////////
-	vertSb.loadShader("shaders/vert.shader");
-	fragSb.loadShader("shaders/fragb.shader");
-	blackShader = new ShaderProgram(vertSb,fragSb);
-	blackShader->bindAttribute(VERTICES, "in_Position");
-	blackShader->bindAttribute(COLORS, "in_Color");
-	blackShader->linkProg();
-	UniformId = blackShader->getUniformLocation("ModelMatrix");
-	UboId = blackShader->getUniformBlockIndex("SharedMatrices", UBO_BP);
-
-	////////////////////////////////////////////////////////////////////////
-	vertSw.loadShader("shaders/vert.shader");
-	fragSw.loadShader("shaders/fragw.shader");
-	whiteShader = new ShaderProgram(vertSw,fragSw);
-	whiteShader->bindAttribute(VERTICES, "in_Position");
-	whiteShader->bindAttribute(COLORS, "in_Color");
-	whiteShader->linkProg();
-	UniformId = whiteShader->getUniformLocation("ModelMatrix");
-	UboId = whiteShader->getUniformBlockIndex("SharedMatrices", UBO_BP);
-	
-	SHADER_PROGRAM_LIST::instance()->add("normal", normalShader);
-	SHADER_PROGRAM_LIST::instance()->add("black", blackShader);
-	SHADER_PROGRAM_LIST::instance()->add("white", whiteShader);
-	/**/
 	manager.createShaderPrograms();
 
 	checkOpenGLError("ERROR: Could not create shaders.");
@@ -127,60 +92,15 @@ void createShaderProgram()
 
 void destroyShaderProgram()
 {
-	/** /
-	normalShader->destroyShaderProgram();
-	vertS.deleteShader();
-	fragS.deleteShader();
-	/////////////////////////////////////////////////
-	blackShader->destroyShaderProgram();
-	vertSb.deleteShader();
-	fragSb.deleteShader();
-
-	/////////////////////////////////////////////////
-	whiteShader->destroyShaderProgram();
-	vertSw.deleteShader();
-	fragSw.deleteShader();
-	/**/
-
 	manager.destroyShadersPrograms();
 	checkOpenGLError("ERROR: Could not destroy shaders.");
 }
 
 //////////////////////////////////////////////////////////////////////// VBOs VAOs
-Mesh cubeMesh;
-Entity entityMesh;
-Entity entityCube;
-Line line;
-Board board = Board(9);
-
-BigLPiece bigLPiece = BigLPiece();
-SmallLPiece smallLPiece = SmallLPiece();
-
-Camera camera;
 
 void createBufferObjects(){
-	/** /
-	camera.setPerspProjection(30, 640/480.0f, 1, 100);
-	camera.setOrthoProjection(-2,2,-2,2,1,15);
-	camera.setLookAt(Vec3(0,0,30),Vec3(0,0,0),Vec3(0,1,0));
-
-	line.createBufferObject(UBO_BP);
-
-	cubeMesh = Mesh("models/bevelCube.obj");
-	entityCube = cubeMesh.getMeshEntity(UBO_BP);
-
-	smallLPiece.setInitPosition(Vec3(0));
-	smallLPiece.createBufferObject(UBO_BP);
-	//bigLPiece.createBufferObject(UBO_BP);
-
-	VBOID = smallLPiece.getVboId();
-
-	position.translation = Vec3(0);
-	position.rotation = Quaternion();
-
-	board.setPiece(smallLPiece.getPiecePositions(), smallLPiece.getSize(),smallLPiece.getStencilId());
-	/**/
-	manager.setCamera();
+	
+	
 	manager.createBufferObjects();
 
 	position.translation = Vec3(0);
@@ -190,122 +110,24 @@ void createBufferObjects(){
 }
 
 void destroyBufferObject(){
-	/** /
-	entityCube.destroyBufferObject();
-	line.destroyBufferObject();
-	smallLPiece.destroyBufferObject();
-	//bigLPiece.destroyBufferObject();
-	/**/
 	manager.destroyBufferObjects();
 	checkOpenGLError("ERROR: Could not destroy VAOs VBOs");
 }
 
-void setupBoard(){
+void setupManager(){
+	manager.setCamera();
+	manager.setMirror(WinX, WinY);
 	manager.setupBoard();
 }
 
-Quaternion qx = Quaternion();
-
 void draw(){
-	/** /
-	camera.draw(persp, VBOID, RotationAngleX, RotationAngleY, CameraScale);
-	RotationAngleY = RotationAngleX = 0;
-	
-	//////////////////////////////////////////////////////////
-	//bigLPiece.setPosition(position);
-	//bigLPiece.draw(UniformId, identifier);
 
-	// once upon a time... 
-
-	Vec3* previousPos = smallLPiece.getPiecePositions();
-	Vec3 ppp[4];
-	ppp[0] = previousPos[0];
-	ppp[1] = previousPos[1];
-	ppp[2] = previousPos[2];
-	ppp[3] = previousPos[3];
-	Vec3* previousPos2;
-	previousPos2 = ppp;
-
-	smallLPiece.givePosition(position,identifier);
-
-	Vec3* newPos = smallLPiece.getPiecePositions();
-	Vec3 ppp2[4];
-	ppp2[0] = newPos[0];
-	ppp2[1] = newPos[1];
-	ppp2[2] = newPos[2];
-	ppp2[3] = newPos[3];
-	Vec3* newPos2;
-	newPos2 = ppp2;
-
-
-	if(board.canMove(newPos2, smallLPiece.getSize(),smallLPiece.getStencilId())){
-		board.erasePiece(previousPos2, smallLPiece.getSize(),smallLPiece.getStencilId());
-		board.setPiece(newPos, smallLPiece.getSize(),smallLPiece.getStencilId());
-		smallLPiece.setPiecePositions(newPos2);
-		smallLPiece.draw(UniformId, identifier);
-	}else{
-		smallLPiece.setPiecePositions(previousPos2);
-		smallLPiece.draw(UniformId, identifier);
-	}
-
-	//entityCube.draw(normalShader, UniformId);
-
-	/** /
-	Position posId = bigLPiece.getPositionIdentifier();
-	posId.translation = posId.translation * 1.1; //same as scale of cubes
-
-	if(identifier != 0){
-		line.setPosition(posId);
-		line.draw(UniformId, axis);
-	}
-	/**/
-	/** /
-	line.draw(UniformId, "X_AXIS");
-	line.draw(UniformId, "Y_AXIS");
-	line.draw(UniformId, "Z_AXIS");
-
-	position.translation = Vec3(0);
-	position.rotation = Quaternion();
-	/**/
-
-	//manager.setPosition(position);
-	//manager.setIdentifier(identifier);
-
-  
-  Vec3 prevEye = manager.camera.getEye();
-  Vec3 prevCenter = manager.camera.getCenter();
-  Vec3 prevUp = manager.camera.getUp();
-  Quaternion prevRotation = manager.camera.getCameraRotation();
-
-  float cameraX = manager.camera.cameraPoint().x;
-  float cameraY = manager.camera.cameraPoint().y;
-  float cameraZ = manager.camera.cameraPoint().z;
-
-  //manager.camera.setLookAt(Vec3(-30, 0, 0), Vec3(cameraX, -cameraY, -cameraZ), Vec3(0, -1, 0));
-  manager.camera.setLookAt(Vec3(-35, 0, 0), Vec3(0,0,0), Vec3(0, -1, 0));
-
-  manager.camera.setCameraRotation(Quaternion(0.0f, Vec4(1.0f,0.0f,0.0f,0.0f)));
-  
- // std::cout << cameraX << "  " << cameraY << "  " << cameraZ << "  " << std::endl;
-
-	mirror.Bind();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	manager.draw(persp, 0, 0, 0, position, identifier);
-	
-	mirror.Unbind();
-
-  manager.camera.setLookAt(prevEye, prevCenter, prevUp);
-  manager.camera.setCameraRotation(prevRotation);
-
-  manager.drawMirror(persp, RotationAngleX, RotationAngleY, CameraScale, position, identifier);
-
-	manager.draw(persp, RotationAngleX, RotationAngleY, CameraScale, position, identifier);
+	manager.drawMirrorsAndCamera(persp, RotationAngleX, RotationAngleY, CameraScale);
+	manager.draw(position, identifier);
 	RotationAngleY = RotationAngleX = 0;
 
 	position.translation = Vec3(0);
 	position.rotation = Quaternion();
-
 
 	checkOpenGLError("ERROR: Could not draw");
 }
@@ -347,6 +169,7 @@ void reshape(int w, int h)
 	WinY = h;
 	glViewport(0, 0, WinX, WinY);
 
+	manager.setMirror(WinX, WinY);
 	 if (w > h)
     {
         cam_xmin = -double(w)/h;
@@ -378,10 +201,36 @@ void timer(int value)
 
 ///////////////////////////////////////////////////////////////////////
 
-void test(){
-	//Entity a = Entity(SmallLPiece,0);
+void ScreenShot(){
+
+	unsigned char* pixels = new unsigned char[3 * WinX * WinY];
+
+	glReadPixels(0, 0, WinX, WinY, GL_BGR, GL_UNSIGNED_BYTE, pixels);
+
+	// Convert to FreeImage format & save to file
+	FIBITMAP* image = FreeImage_ConvertFromRawBits(pixels, WinX, WinY, 3 * WinX, 24, 0xFF0000, 0x00FF00, 0x0000FF, false);  //RGB
+
+	std::string str;
+	std::cout << "Please enter name of screenshot to save: ";
+	std::cin >> str;
+	std::string filename = "screenshots/" + str +".bmp";
+
+	if (FreeImage_Save(FIF_BMP, image, filename.c_str(), 0)){
+		std::cout << "Screenshot Saved."<< std::endl;
+	}
+	else{
+		std::cout << "Failed to save screenshot" << std::endl;
+	}
+
+	// Free resources
+	FreeImage_Unload(image);
+	delete[] pixels;
 
 }
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
 
 // Mouse
 double cam_mousex, cam_mousey; // Mouse x, y pos (camunits)
@@ -389,25 +238,82 @@ double cam_mousex, cam_mousey; // Mouse x, y pos (camunits)
                                //  then set at first mouse event
 bool dragging = false;
 
+void processSpecialKeys(int key, int x, int y) {
+	if(!dragging && identifier != 0){
+		switch(key){
+			case GLUT_KEY_UP:
+				position.translation.z -= 1;
+			break;	
+			case GLUT_KEY_DOWN:
+				position.translation.z += 1;
+			break;
+			case GLUT_KEY_LEFT:
+				position.translation.x -= 1;
+			break;
+			case GLUT_KEY_RIGHT:
+				position.translation.x += 1;
+			break;
+		}
+	}
+}
+
 void processNormalKeys(unsigned char key, int x, int y) {
-	if (key == 'q') axis = "X_AXIS";
-	if (key == 'w') axis = "Y_AXIS";
-	if (key == 'e') axis = "Z_AXIS";
+	std::string filename;
 
 	if(key == 'a'){
-		if(axis == "X_AXIS") position.rotation = Quaternion(90,X_AXIS);
-		if(axis == "Y_AXIS") position.rotation = Quaternion(90,Y_AXIS);
-		if(axis == "Z_AXIS") position.rotation = Quaternion(90,Z_AXIS);
+		position.rotation = Quaternion(90,Z_AXIS);
 	}
 
 	if(key == 'd'){
-		if(axis == "X_AXIS") position.rotation = Quaternion(-90,X_AXIS);
-		if(axis == "Y_AXIS") position.rotation = Quaternion(-90,Y_AXIS);
-		if(axis == "Z_AXIS") position.rotation = Quaternion(-90,Z_AXIS);
+		position.rotation = Quaternion(-90,Z_AXIS);
+	}
+	if(key == 'q'){
+		position.rotation = Quaternion(90,Y_AXIS);
+	}
+
+	if(key == 'e'){
+		position.rotation = Quaternion(-90,Y_AXIS);
+	}
+	if(key == 'w'){
+		position.rotation = Quaternion(90,X_AXIS);
+	}
+
+	if(key == 's'){
+		position.rotation = Quaternion(-90,X_AXIS);
 	}
 
 	if(key == 'p'){
 		persp = !persp;
+	}
+
+	if(key == 'm'){
+		std::cout << "Please enter filename to save: ";
+		std::cin >> filename;
+
+		manager.savePiece(filename);
+		std::cout << "File saved" << std::endl;
+	}
+
+	if(key == 'n'){
+		std::cout << "Please enter filename to load: ";
+		std::cin >> filename;
+		manager.loadPiece(filename);
+		std::cout << "File loaded" << std::endl;
+	}
+
+	if(key == 'i'){
+		std::cout << "Please enter filename to load solution: ";
+		std::cin >> filename;
+		manager.loadSolution(filename);
+		std::cout << "Solution loaded" << std::endl;
+	}
+
+	if (key == 'h'){
+		manager.useShadows = !manager.useShadows;
+	}
+
+	if(key == 'o'){
+		ScreenShot();
 	}
 }
 
@@ -432,29 +338,12 @@ void mousedy(int x, int y){
 	int valx = 0, valy = 0;
 
 	if(dragging && identifier != 0){
-		if(axis == "X_AXIS"){
-			if((cam_mousex - old_mousex)*1000 > 8) valx = 1;
-			if((cam_mousex - old_mousex)*1000 < -8) valx = -1;
-			position.translation.x = position.translation.x + valx;
-			if((cam_mousey - old_mousey)*1000 > 8) valy = 1;
-			if((cam_mousey - old_mousey)*1000 < -8) valy = -1;
-			position.translation.x = position.translation.x + valy;
-		}else if(axis == "Y_AXIS"){
-			if((cam_mousex - old_mousex)*1000 > 8) valx = 1;
-			if((cam_mousex - old_mousex)*1000 < -8) valx = -1;
-			position.translation.y = position.translation.y + valx;
-			if((cam_mousey - old_mousey)*1000 > 8) valy = 1;
-			if((cam_mousey - old_mousey)*1000 < -8) valy = -1;
-			position.translation.y = position.translation.y + valy;
-		}else if(axis == "Z_AXIS"){
-			if((cam_mousex - old_mousex)*1000 > 8) valx = 1;
-			if((cam_mousex - old_mousex)*1000 < -8) valx = -1;
-			position.translation.z = position.translation.z + valx;
-			if((cam_mousey - old_mousey)*1000 > 8) valy = 1;
-			if((cam_mousey - old_mousey)*1000 < -8) valy = -1;
-			position.translation.z = position.translation.z + valy;
-		} 
-
+			if((cam_mousex - old_mousex)*1000 > 5) valx = 1;
+			if((cam_mousex - old_mousex)*1000 < -5) valx = -1;
+			position.translation.y = valx;
+			if((cam_mousey - old_mousey)*1000 > 5) valy = 1;
+			if((cam_mousey - old_mousey)*1000 < -5) valy = -1;
+			position.translation.y = valy;
 	}
 	glutPostRedisplay();
 	//std::cerr << (cam_mousex - old_mousex)*1000 << " " <<  (cam_mousey - old_mousey)*1000 << std::endl;
@@ -534,7 +423,7 @@ void setupCallbacks()
 
 	glutMouseFunc(processMouse);
 	glutMotionFunc(processMouseMove);
-
+	glutSpecialFunc(processSpecialKeys);
 	glutKeyboardFunc(processNormalKeys);
 
 	glutTimerFunc(0,timer,0);
@@ -543,19 +432,20 @@ void setupCallbacks()
 
 void setupOpenGL() {
 	std::cerr << "CONTEXT: OpenGL v" << glGetString(GL_VERSION) << std::endl;
-	//glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClearColor(0.9f, 0.9f, 0.9f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LEQUAL);
+	glDepthFunc(GL_LESS);
 	glDepthMask(GL_TRUE);
 	glDepthRange(0.0, 1.0);
 	glClearDepth(1.0);
 	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 
 	glEnable(GL_STENCIL_TEST);
 	glStencilOp(GL_KEEP,GL_KEEP,GL_REPLACE);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void setupGLEW() {
@@ -593,7 +483,7 @@ void init(int argc, char* argv[])
 	setupOpenGL();
 	createShaderProgram();
 	createBufferObjects();
-	setupBoard();
+	setupManager();
 	setupCallbacks();
 }
 
@@ -601,11 +491,6 @@ int main(int argc, char* argv[])
 {
 	/**/
 	init(argc, argv);
-
-	mirror.CreateFrameBuffer(640, 480);
-	mirror.AddDepthBuffer();
-	mirror.Unbind();
-
 	glutMainLoop();	
 	exit(EXIT_SUCCESS);
 	/**/
@@ -619,11 +504,18 @@ int main(int argc, char* argv[])
 	std::cerr << f << std::endl;
 	
 	/** /
-	Quaternion qi = Quaternion(1,0,0,0);
-	Quaternion qf = Quaternion(90,1,0,0);
+	Quaternion qi = Quaternion(90,X_AXIS);
+	Quaternion qf = Quaternion(180,X_AXIS);
 
-	Quaternion f = qi * qf;
+	Quaternion f = qf * qi.Inverse();
+
+	float angle;
+	Vec4 axis;
+
+	f.ToAngleAxis(angle,axis);
+
 	std::cerr << f << std::endl;
+	std::cerr << angle << " " << axis << std::endl;
 	/**/
 }
 

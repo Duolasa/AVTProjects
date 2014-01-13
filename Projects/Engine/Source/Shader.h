@@ -11,6 +11,8 @@
 
 #include "ListManager.h"
 
+#include <map>
+
 
 namespace engine {
 
@@ -135,6 +137,7 @@ namespace engine {
 		}
 
 	public:
+		std::map<std::string, GLint> _uniforms;
 
 		ShaderProgram(){
 			vertexShader = Shader(GL_VERTEX_SHADER);
@@ -194,14 +197,30 @@ namespace engine {
 		}
 
 
-		GLint getUniformLocation(const GLchar* uniform_name){
-			return glGetUniformLocation(ProgramId, uniform_name);
+		GLint getUniformLocation(std::string uniform_name){
+			GLint id = glGetUniformLocation(ProgramId, uniform_name.c_str());
+			_uniforms[uniform_name] = id;
+			return id;
 		}
 
 		GLint getUniformBlockIndex(const GLchar *name, const GLuint UBO){
 			GLint UboId = glGetUniformBlockIndex(ProgramId, name);
 			glUniformBlockBinding(ProgramId, UboId, UBO);
 			return UboId;
+		}
+
+		void setParameter(std::string name, Vec3 vector){
+			float vec3[3] = {vector.x, vector.y, vector.z};
+			glProgramUniform3fv(ProgramId, _uniforms[name], 1, vec3);
+		}
+
+		void setParameter(std::string name, Vec4 vector){
+			float vec4[4] = {vector.x, vector.y, vector.z, vector.w};
+			glProgramUniform4fv(ProgramId, _uniforms[name], 1, vec4);
+		}
+
+		void setParameter(std::string name, float value){
+			glProgramUniform1f(ProgramId, _uniforms[name], value);
 		}
 
 		void linkProg(){

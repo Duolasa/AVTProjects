@@ -187,11 +187,11 @@ engine::Vec3 &engine::Vec3::Normalise(){						                        // normali
 
 // Constructors
 engine::Vec4::Vec4(){
-	x = 0; y = 0; z = 0; w = 4;
+	x = 0; y = 0; z = 0; w = 0;
 }
 
 engine::Vec4::Vec4(float a){
-	x = a; y = a; z = a; w = 4;
+	x = a; y = a; z = a; w = a;
 }
 
 engine::Vec4::Vec4(float a, float b, float c, float d){
@@ -202,8 +202,8 @@ engine::Vec4::Vec4(const engine::Vec4 &v){
 	x = v.x; y = v.y; z = v.z; w = v.w;
 }
 
-engine::Vec4::Vec4(const engine::Vec3 &v, float w){
-	x = v.x; y = v.y; z = v.z; w = w;
+engine::Vec4::Vec4(const engine::Vec3 &v, float d){
+	x = v.x; y = v.y; z = v.z; w = d;
 }
 
 

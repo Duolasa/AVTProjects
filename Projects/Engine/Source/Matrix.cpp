@@ -263,11 +263,12 @@ engine::Mat4 engine::GetOrthoProjection(float top, float bottom, float left, flo
 	float tmb = top - bottom;
 
 	float nmf = nearZ - farZ;
+	float fmn = farZ - nearZ;
 
 	if ((lmr != 0) && (bmt != 0) && (nmf != 0) && (rml != 0) && (tmb != 0)){
 		m.matrix[0] = 2 / rml;
 		m.matrix[5] = 2 / tmb;
-		m.matrix[10] = 2 / nmf;
+		m.matrix[10] = -2 / fmn;
 		m.matrix[12] = (left + right) / lmr;
 		m.matrix[13] = (top + bottom) / bmt;
 		m.matrix[14] = (nearZ + farZ) / nmf;
@@ -276,12 +277,12 @@ engine::Mat4 engine::GetOrthoProjection(float top, float bottom, float left, flo
 	else{
 		std::cout << "returning 0...0 Matrix from GetOrthoPorjection, please check input" << std::endl;
 	}
-
+	/** /
 	//truncate
 	for (int i = 0; i < 16; i++){
 		m.matrix[i] = floorf(m.matrix[i] * 100.0f + 0.5f) / 100.0f;
 	}
-
+	/**/
 
 	return m;
 

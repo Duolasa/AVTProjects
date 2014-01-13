@@ -29,8 +29,6 @@ namespace engine {
 			_up = up;
 		}
 
-
-
 		void setOrthoProjection(float top, float bottom, float left, float right, float nearZ, float farZ){
 			_orthoProjMatrix = GetOrthoProjection(top, bottom, left, right, nearZ, farZ);
 		}
@@ -58,17 +56,18 @@ namespace engine {
 			Quaternion qX = Quaternion(RotationAngleY * _rotationSpeed, Y_AXIS);	
 			Quaternion qY = Quaternion(RotationAngleX * _rotationSpeed, X_AXIS);
 
-
 			_cameraRotation = (qX * qY) * _cameraRotation;
-
 			_viewMatrix = _cameraRotation.getMatrix() * _viewMatrix;
 
-			//Camera Position ..... maybe....
-			Quaternion q = Quaternion(0, _eye.x, _eye.y, _eye.z + zoom);
-			q = (_cameraRotation * q) *_cameraRotation.Inverse();
-			q = q * Quaternion(0,0,0,-1);
-			//std::cerr << "x: " << -q.y << " y: " << q.x << " z: " << -q.t << std::endl;
-			_cameraPoint = Vec3(-q.y, q.x, -q.t);
+			//Camera Position ..... maybe....this time
+			Vec3 camPos = Vec3(_eye.x, _eye.y, _eye.z + zoom);
+			Mat4 rotM = _cameraRotation.getMatrix();
+			Vec3 actualPos;
+			actualPos.x = rotM.matrix[0] * camPos.x + rotM.matrix[1] * camPos.y + rotM.matrix[2] * camPos.z;
+			actualPos.y = rotM.matrix[4] * camPos.x + rotM.matrix[5] * camPos.y + rotM.matrix[6] * camPos.z;
+			actualPos.z = rotM.matrix[8] * camPos.x + rotM.matrix[9] * camPos.y + rotM.matrix[10] * camPos.z;
+			//std::cerr << " m: " << actualPos << std::endl;
+			_cameraPoint = actualPos;
 
 			glBindBuffer(GL_UNIFORM_BUFFER, VBOID);
 			glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Mat4), _viewMatrix.matrix);
@@ -91,14 +90,6 @@ namespace engine {
 		Vec3 cameraPoint(){
 			return _cameraPoint;
 		}
-
-    Quaternion getCameraRotation(){
-      return _cameraRotation;
-    }
-
-    void setCameraRotation(Quaternion q){
-      _cameraRotation = q;
-    }
 
 	};
 }

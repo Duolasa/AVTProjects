@@ -21,17 +21,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Board.h" />
-    <ClInclude Include="Source\Manager.h" />
-    <ClInclude Include="Source\Mirror.h" />
-    <ClInclude Include="Source\Piece.h" />
-    <ClInclude Include="Source\SomaPiece.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Source\assignment_4.cpp" />
-    <ClCompile Include="Source\Mirror.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Source\shaders\frag.shader" />
     <None Include="Source\shaders\fragb.shader" />
     <None Include="Source\shaders\fragw.shader" />
@@ -40,6 +29,20 @@
     <None Include="Source\shaders\vert.shader" />
     <None Include="Source\shaders\vert_light.shader" />
     <None Include="Source\shaders\vert_normals.shader" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Board.h" />
+    <ClInclude Include="Source\Manager.h" />
+    <ClInclude Include="Source\Mirror.h" />
+    <ClInclude Include="Source\Piece.h" />
+    <ClInclude Include="Source\ReadWritePieces.h" />
+    <ClInclude Include="Source\SomaPiece.h" />
+    <ClInclude Include="Source\tinyxml2.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\assignment_4.cpp" />
+    <ClCompile Include="Source\Mirror.cpp" />
+    <ClCompile Include="Source\tinyxml2.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{85982A9D-44C1-4FCF-904A-CA10CFB559CF}</ProjectGuid>
@@ -81,8 +84,8 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\Dependencies\glew\lib\Release\Win32;..\..\Dependencies\freeglut\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;glew32.lib;freeglut.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\Dependencies\glew\lib\Release\Win32;..\..\Dependencies\freeglut\lib;E:\IST\AVT\AVTProjects\Projects\4- Soma Cube\Source\freeimage;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;glew32.lib;freeglut.lib;FreeImage.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

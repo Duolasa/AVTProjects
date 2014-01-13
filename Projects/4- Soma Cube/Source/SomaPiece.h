@@ -5,6 +5,10 @@
 
 namespace engine {
 
+	struct PiecePosition {
+		Vec3 pos[4];
+	};
+
 	class SomaPiece {
 	protected:
 		Vec3 _boardPos[4];			// Cubes positions in board
@@ -22,6 +26,7 @@ namespace engine {
 		Vec3 _initPosition;			// intial position of piece
 		Mesh _pieceMesh;			// Mesh of piece
 		Mesh _cubeMesh;				// Mesh of individual cube
+		int _order[4];				// order that the cubes are drawn
 		GLuint VBOID;
 
 	
@@ -32,8 +37,6 @@ namespace engine {
 		~SomaPiece(){}
 
 		void createBufferObject(const GLuint UBO){
-			//_pieceEntity = _pieceMesh.getMeshEntity(UBO);
-			//_pieceEntity.setScale(Vec3(0.4f));
 			Cube cube = Cube(1,Vec3(1),Vec3(1),Vec3(1),Vec3(1),Vec3(1),Vec3(1));
 
 			_cubeD[0] = _cubeMesh.getMeshEntity(UBO);
@@ -74,7 +77,6 @@ namespace engine {
 		}
 
 		void destroyBufferObject(){
-			//_pieceEntity.destroyBufferObject();
 			_cubeE[0].destroyBufferObject();
 			_cubeE[1].destroyBufferObject();
 			_cubeE[2].destroyBufferObject();
@@ -146,8 +148,6 @@ namespace engine {
 					}
 				}
 			}
-
-			//std::cerr << _posCube[0].x << std::endl;
 		}
 
 		unsigned int getStencilId(){ return _stencilId; }
@@ -164,16 +164,78 @@ namespace engine {
 			return newPos;
 		}
 
-		void draw(GLint UniformId, int identifier){
+		float distance3D(Vec3 p1, Vec3 p2){
+			float dist;
+			dist = sqrt(((p1.x - p2.x)*(p1.x - p2.x)) + ((p1.y - p2.y)*(p1.y - p2.y)) + ((p1.z - p2.z)*(p1.z - p2.z)));
+			return dist;
+		}
+
+		int getClosestToCamera(){
+			return  _order[0];
+		}
+
+		void sortPieces(Vec3 camPos){
+			float piece0=0, piece1=0, piece2=0, piece3=0;
+
+
+			piece0 = distance3D(camPos,_posCube[0]);
+			piece1 = distance3D(camPos,_posCube[1]);
+			piece2 = distance3D(camPos,_posCube[2]);
+			if(_size > 3){
+				piece3 = distance3D(camPos,_posCube[3]);
+			}
+
+			float indices[] = {piece0, piece1, piece2, piece3};
+
+			std::vector<float> order(indices, indices+_size);
+			std::sort(order.begin(),order.end());
+
+			int i=0;
+			int j[4] = {0,0,0,0};
+
+			for(std::vector<float>::iterator it = order.begin();it!=order.end();it++){
+				if(*it == piece0 && j[0]==0){
+					_order[i] = 0;
+					j[0]=1;
+				}
+				if(*it == piece1 && j[1]==0){
+					_order[i] = 1;
+					j[1]=1;
+				}
+				if(*it == piece2 && j[2]==0){
+					_order[i] = 2;
+					j[2]=1;
+				}
+				if(*it == piece3 && j[3]==0 && _size>3){
+					_order[i] = 3;
+					j[3]=1;
+				}
+				i++;
+			}
+			//std::reverse(_order, _order+_size);
+			//std::cerr << " " << _order[0] <<" " << _order[1] <<" " << _order[2] << " " << _order[3] << std::endl;
+		}
+
+
+		virtual ShaderProgram* setColor(Vec3 cameraPos){
+			ShaderProgram* normal = SHADER_PROGRAM_LIST::instance()->get("normal");
+			return normal;
+		}
+
+		void draw(GLint UniformId, int identifier, ShaderProgram *shader, bool useShader, Vec3 cameraPos){
 			ShaderProgram* normal = SHADER_PROGRAM_LIST::instance()->get("normal");
 			ShaderProgram* black = SHADER_PROGRAM_LIST::instance()->get("black");
 			ShaderProgram* white = SHADER_PROGRAM_LIST::instance()->get("white");
 
-			//_pieceEntity.addRotation(_pos.rotation);
-			//_pieceEntity.addTranslation(_pos.translation);
-			//_pieceEntity.draw(normal, UniformId);
+			sortPieces(cameraPos);
+		
+			int i;
+			/** /
+			
+			glDisable(GL_BLEND);
 			glDisable(GL_DEPTH_TEST);
-			for (int i = 0; i<_size; i++){
+			for (int j = 0; j<_size; j++){
+				i = _order[j];
 				_cubeD[i].setScale(Vec3(1.05f));
 
 				_cubeD[i].setStencilId(10 * _stencilId + i);
@@ -183,8 +245,16 @@ namespace engine {
 				_cubeD[i].setScale(Vec3(1.0f));
 			}
 			glEnable(GL_DEPTH_TEST);
+			glEnable(GL_BLEND);
+			
+			/**/
+			ShaderProgram* colorShader = setColor(cameraPos);
+			if(useShader)
+				colorShader = shader;
+			
+			for(int j=0; j<_size;j++){
+				i = _order[j];
 
-			for(int i=0; i<_size;i++){
 				_cubeE[i].setStencilId(10*_stencilId +i);
 				_cubeE[i].setTranslation(_posCube[i]);
 
@@ -193,11 +263,13 @@ namespace engine {
 
 				if(identifier ==(int)(10*_stencilId + i)){
 					_cubeE[i].drawLine(white, UniformId);
-					_cubeD[i].draw(normal, UniformId);
+					_cubeD[i].draw(colorShader, UniformId);
 				}else{
-					_cubeD[i].draw(normal, UniformId);
-				}	
+					_cubeD[i].draw(colorShader, UniformId);
+				}
 			}
+
+			
 
 			_pos.translation = Vec3(0);
 			_pos.rotation = Quaternion();
@@ -210,20 +282,21 @@ namespace engine {
 
 		void setInitPosition(Vec3 posInit){ _initPosition = posInit; }
 
-		Vec3* getPiecePositions(){ 
-			Vec3 ppp[4];
-			ppp[0] = _posCube[0];
-			ppp[1] = _posCube[1];
-			ppp[2] = _posCube[2];
-			ppp[3] = _posCube[3];
-			return _posCube; }
+		PiecePosition getPiecePositions(){ 
+			PiecePosition result;
+			result.pos[0] = _posCube[0];
+			result.pos[1] = _posCube[1];
+			result.pos[2] = _posCube[2];
+			result.pos[3] = _posCube[3];
+			return result; }
 
-		void setPiecePositions(Vec3 positions[4]){ 
+		void setPiecePositions(PiecePosition position){ 
 			for(int i=0; i<_size;i++)
-				_posCube[i] = positions[i]; 
+				_posCube[i] = position.pos[i]; 
 		}
 
 		int getSize(){ return _size; }
+
 	};
 
 	class Line {
@@ -287,17 +360,20 @@ namespace engine {
 	public:
 
 		BigLPiece() : SomaPiece("BigLPiece"){
-			_pieceMesh = Mesh("models/BigLPiece.obj");
-			_cubeMesh = Mesh("models/bevelCube.obj");
+			
+			_cubeMesh = Mesh("models/roundedCube.obj");
 			_size = 4;
 			_stencilId = 1;
 
 			_pos.translation = Vec3(0);
 			_pos.rotation = Quaternion(0,1,0,0);
 
-			_initPosition = Vec3(-4,0,0);
+			_initPosition = Vec3(0,0,0);
 
-
+			_initPosCube[0] = Vec3(0,0,0);
+			_initPosCube[1] = Vec3(0,0,1);
+			_initPosCube[2] = Vec3(0,0,2);
+			_initPosCube[3] = Vec3(1,0,0);
 
 			_posCube[0] = Vec3(0,0,0);
 			_posCube[1] = Vec3(0,0,1);
@@ -305,26 +381,44 @@ namespace engine {
 			_posCube[3] = Vec3(1,0,0);
 			
 		}
+
+		ShaderProgram* setColor(Vec3 cameraPos){
+			ShaderProgram* goochShader = SHADER_PROGRAM_LIST::instance()->get("gooch");
+			goochShader->setParameter("warmColor", Vec3(1.0, 0.0, 0.0));
+			goochShader->setParameter("cameraPos", cameraPos);
+			return goochShader;
+		}
 	};
 
 	class SmallLPiece : public SomaPiece {
 	public:
 
 		SmallLPiece() : SomaPiece("SmallLPiece"){
-			_pieceMesh = Mesh("models/BigLPiece.obj");
-			_cubeMesh = Mesh("models/bevelCube.obj");
+		
+			_cubeMesh = Mesh("models/roundedCube.obj");
 			_size = 3;
 			_stencilId = 2;
 
 			_pos.translation = Vec3(0);
 			_pos.rotation = Quaternion(0,1,0,0);
 
-			_initPosition = Vec3(4,0,0);
+			_initPosition = Vec3(0,0,0);
+
+			_initPosCube[0] = Vec3(0,0,0);
+			_initPosCube[1] = Vec3(0,0,-1);
+			_initPosCube[2] = Vec3(-1,0,0);
 
 			_posCube[0] = Vec3(0,0,0);
 			_posCube[1] = Vec3(0,0,-1);
 			_posCube[2] = Vec3(-1,0,0);
 
+		}
+
+		ShaderProgram* setColor(Vec3 cameraPos){
+			ShaderProgram* goochShader = SHADER_PROGRAM_LIST::instance()->get("gooch");
+			goochShader->setParameter("warmColor", Vec3(0.0, 1.0, 0.0));
+			goochShader->setParameter("cameraPos", cameraPos);
+			return goochShader;
 		}
 	};
 
@@ -332,15 +426,20 @@ namespace engine {
 	public:
 
 		TPiece() : SomaPiece("TPiece"){
-			_pieceMesh = Mesh("models/BigLPiece.obj");
-			_cubeMesh = Mesh("models/bevelCube.obj");
+		
+			_cubeMesh = Mesh("models/roundedCube.obj");
 			_size = 4;
 			_stencilId = 3;
 
 			_pos.translation = Vec3(0);
 			_pos.rotation = Quaternion(0,1,0,0);
 
-			_initPosition = Vec3(4,0,0);
+			_initPosition = Vec3(0,0,0);
+
+			_initPosCube[0] = Vec3(0,0,0);
+			_initPosCube[1] = Vec3(0,0,-1);
+			_initPosCube[2] = Vec3(1,0,0);
+			_initPosCube[3] = Vec3(-1,0,0);
 
 			_posCube[0] = Vec3(0,0,0);
 			_posCube[1] = Vec3(0,0,-1);
@@ -348,21 +447,33 @@ namespace engine {
 			_posCube[3] = Vec3(-1,0,0);
 
 		}
+
+		ShaderProgram* setColor(Vec3 cameraPos){
+			ShaderProgram* goochShader = SHADER_PROGRAM_LIST::instance()->get("gooch");
+			goochShader->setParameter("warmColor", Vec3(0.0, 0.0, 1.0));
+			goochShader->setParameter("cameraPos", cameraPos);
+			return goochShader;
+		}
 	};
 
 	class SnakePiece : public SomaPiece {
 	public:
 
 		SnakePiece() : SomaPiece("SnakePiece"){
-			_pieceMesh = Mesh("models/BigLPiece.obj");
-			_cubeMesh = Mesh("models/bevelCube.obj");
+			
+			_cubeMesh = Mesh("models/roundedCube.obj");
 			_size = 4;
 			_stencilId = 4;
 
 			_pos.translation = Vec3(0);
 			_pos.rotation = Quaternion(0,1,0,0);
 
-			_initPosition = Vec3(4,0,0);
+			_initPosition = Vec3(0,0,0);
+
+			_initPosCube[0] = Vec3(0,0,0);
+			_initPosCube[1] = Vec3(-1,0,0);
+			_initPosCube[2] = Vec3(0,0,-1);
+			_initPosCube[3] = Vec3(1,0,-1);
 
 			_posCube[0] = Vec3(0,0,0);
 			_posCube[1] = Vec3(-1,0,0);
@@ -370,21 +481,34 @@ namespace engine {
 			_posCube[3] = Vec3(1,0,-1);
 
 		}
+
+		ShaderProgram* setColor(Vec3 cameraPos){
+			ShaderProgram* goochShader = SHADER_PROGRAM_LIST::instance()->get("gooch");
+			goochShader->setParameter("warmColor", Vec3(1.0, 1.0, 0.0));
+			goochShader->setParameter("cameraPos", cameraPos);
+			return goochShader;
+		}
 	};
 
 	class StrangePiece1 : public SomaPiece {
 	public:
 
 		StrangePiece1() : SomaPiece("StrangePiece1"){
-			_pieceMesh = Mesh("models/BigLPiece.obj");
-			_cubeMesh = Mesh("models/bevelCube.obj");
+		
+			_cubeMesh = Mesh("models/roundedCube.obj");
 			_size = 4;
 			_stencilId = 5;
 
 			_pos.translation = Vec3(0);
 			_pos.rotation = Quaternion(0,1,0,0);
 
-			_initPosition = Vec3(4,0,0);
+			_initPosition = Vec3(0,0,0);
+
+			
+			_initPosCube[0] = Vec3(0,0,0);
+			_initPosCube[1] = Vec3(-1,0,0);
+			_initPosCube[2] = Vec3(0,0,-1);
+			_initPosCube[3] = Vec3(1,0,-1);
 
 			_posCube[0] = Vec3(0,0,0);
 			_posCube[1] = Vec3(-1,0,0);
@@ -392,21 +516,34 @@ namespace engine {
 			_posCube[3] = Vec3(0,1,-1);
 
 		}
+
+		ShaderProgram* setColor(Vec3 cameraPos){
+			ShaderProgram* goochShader = SHADER_PROGRAM_LIST::instance()->get("gooch");
+			goochShader->setParameter("warmColor", Vec3(0.0, 1.0, 1.0));
+			goochShader->setParameter("cameraPos", cameraPos);
+			return goochShader;
+		}
 	};
 
 	class StrangePiece2 : public SomaPiece {
 	public:
 
 		StrangePiece2() : SomaPiece("StrangePiece2"){
-			_pieceMesh = Mesh("models/BigLPiece.obj");
-			_cubeMesh = Mesh("models/bevelCube.obj");
+			
+			_cubeMesh = Mesh("models/roundedCube.obj");
 			_size = 4;
 			_stencilId = 6;
 
 			_pos.translation = Vec3(0);
 			_pos.rotation = Quaternion(0,1,0,0);
 
-			_initPosition = Vec3(4,0,0);
+			_initPosition = Vec3(0,0,0);
+
+			_initPosCube[0] = Vec3(0,0,0);
+			_initPosCube[1] = Vec3(-1,0,0);
+			_initPosCube[2] = Vec3(0,0,-1);
+			_initPosCube[3] = Vec3(0,1,-1);
+
 
 			_posCube[0] = Vec3(0,0,0);
 			_posCube[1] = Vec3(1,0,0);
@@ -414,21 +551,33 @@ namespace engine {
 			_posCube[3] = Vec3(0,1,-1);
 
 		}
+
+		ShaderProgram* setColor(Vec3 cameraPos){
+			ShaderProgram* goochShader = SHADER_PROGRAM_LIST::instance()->get("gooch");
+			goochShader->setParameter("warmColor", Vec3(1.0, 0.0, 1.0));
+			goochShader->setParameter("cameraPos", cameraPos);
+			return goochShader;
+		}
 	};
 
 	class CornerPiece : public SomaPiece {
 	public:
 
 		CornerPiece() : SomaPiece("CornerPiece"){
-			_pieceMesh = Mesh("models/BigLPiece.obj");
-			_cubeMesh = Mesh("models/bevelCube.obj");
+		
+			_cubeMesh = Mesh("models/roundedCube.obj");
 			_size = 4;
 			_stencilId = 7;
 
 			_pos.translation = Vec3(0);
 			_pos.rotation = Quaternion(0,1,0,0);
 
-			_initPosition = Vec3(4,0,0);
+			_initPosition = Vec3(0,0,0);
+
+			_initPosCube[0] = Vec3(0,0,0);
+			_initPosCube[1] = Vec3(1,0,0);
+			_initPosCube[2] = Vec3(0,1,0);
+			_initPosCube[3] = Vec3(0,0,1);
 
 			_posCube[0] = Vec3(0,0,0);
 			_posCube[1] = Vec3(1,0,0);
@@ -436,6 +585,14 @@ namespace engine {
 			_posCube[3] = Vec3(0,0,1);
 
 		}
+		
+		ShaderProgram* setColor(Vec3 cameraPos){
+			ShaderProgram* goochShader = SHADER_PROGRAM_LIST::instance()->get("gooch");
+			goochShader->setParameter("warmColor", Vec3(0.5, 0.5, 0.0));
+			goochShader->setParameter("cameraPos", cameraPos);
+			return goochShader;
+		}
+
 	};
 }
 
